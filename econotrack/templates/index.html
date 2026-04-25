@@ -41,3 +41,13 @@
     </div>
 </body>
 </html>
+<h1>Economic News</h1>
+
+<a href="/add">Add News</a>
+
+{% for item in news %}
+  <h3>{{ item.title }}</h3>
+  <p>{{ item.content }}</p>
+  <small>{{ item.category }}</small>
+  <hr>
+{% endfor %}

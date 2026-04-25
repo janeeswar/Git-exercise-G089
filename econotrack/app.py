@@ -1,60 +1,114 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, redirect, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-import os
 
 app = Flask(__name__)
+app.secret_key = "secret123"
 
-# Home route
-@app.route('/')
-def index():
-    return render_template('index.html')
+#DATABASE
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
+    """)
+    
+    conn.commit()
+    conn.close()
 
-# Register route
-@app.route('/register', methods=['GET', 'POST'])
+def get_db():
+    return sqlite3.connect("users.db")
+
+# HOME 
+@app.route("/")
+def home():
+    if "user" in session:
+        return f"""
+        <h2>Welcome, {session['user']}!</h2>
+        <a href='/logout'>Logout</a>
+        """
+    
+    return """
+    <h2>Home</h2>
+    <a href='/register'>Register</a> | <a href='/login'>Login</a>
+    """
+
+# REGISTER 
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-        conn = sqlite3.connect('econotrack.db')
+        # STEP 2 → HASH PASSWORD
+        hashed_password = generate_password_hash(password)
+
+        conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)")
+        try:
+            cursor.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, hashed_password)
+            )
+            conn.commit()
+        except:
+            return "User already exists"
 
-        conn.commit()
         conn.close()
+        return redirect("/login")
 
-        # ✅ redirect AFTER saving
-        return redirect(url_for('index'))
+    return """
+    <h2>Register</h2>
+    <form method='POST'>
+        Username: <input name='username'><br>
+        Password: <input type='password' name='password'><br>
+        <button type='submit'>Register</button>
+    </form>
+    """
 
-    # ✅ show form if GET
-    return render_template('register.html')
-
-
-if __name__ == '__main__':
-    if not os.path.exists('econotrack.db'):
-        conn = sqlite3.connect('econotrack.db')
-        conn.close()
-
-    app.run(debug=True)
-    @app.route('/login', methods=['GET', 'POST'])
+# LOGIN 
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-        conn = sqlite3.connect('econotrack.db')
+        conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+        cursor.execute("SELECT * FROM users WHERE username=?", (username,))
         user = cursor.fetchone()
 
         conn.close()
 
-        if user:
-            return redirect(url_for('index'))  # or dashboard later
+        if user and check_password_hash(user[2], password):
+            session["user"] = username
+            return redirect("/")
         else:
-            return "Invalid username or password"
+            return "Invalid login"
 
-    return render_template('login.html')
+    return """
+    <h2>Login</h2>
+    <form method='POST'>
+        Username: <input name='username'><br>
+        Password: <input type='password' name='password'><br>
+        <button type='submit'>Login</button>
+    </form>
+    """
+
+# LOGOUT 
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect("/")
+
+#  RUN
+if __name__ == "__main__":
+    init_db()
+    app.run(debug=True)
