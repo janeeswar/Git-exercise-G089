@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EconoTrack Dashboard</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h1>EconoTrack Dashboard</h1>
+
+<h2>Oil Price Chart</h2>
+<canvas id="oilChart"></canvas>
+
+<h2>Gold Price Chart</h2>
+<canvas id="goldChart"></canvas>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+</html>
+<div>
+<label>Timeframe:</label>
+<select>
+<option>1 Week</option>
+<option>1 Month</option>
+<option>6 Months</option>
+</select>
+
+<label>Resource:</label>
+<select>
+<option>Oil</option>
+<option>Gold</option>
+</select>
+</div>
+<h2>Resource Performance</h2>
+
+<p>Oil ↑ +2.3%</p>
+<p>Gold ↑ +1.5%</p>
