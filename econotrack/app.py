@@ -3,50 +3,105 @@ from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
+# Database connection
 def get_db():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
-    @app.route('/')
+
+
+# 🟢 HOME ROUTE (Categorized Feed)
+@app.route('/')
 def index():
     conn = get_db()
     news = conn.execute('SELECT * FROM news').fetchall()
     conn.close()
-    return render_template('index.html', news=news)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-from flask import Flask
+    categorized = {}
 
-app = Flask(__name__)
+    for item in news:
+        cat = item['category']
+        if cat not in categorized:
+            categorized[cat] = []
+        categorized[cat].append(item)
 
-@app.route('/')
-def home():
-    return '<h1>EconoTrack is Running!</h1>'
+    return render_template('index.html', categorized=categorized)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    from flask import Flask, render_template
-import sqlite3
-import os
 
-app = Flask(__name__)
+# 🟢 ADD NEWS
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        category = request.form['category']
 
-# Helper to connect to SQLite
-def get_db():
-    db = sqlite3.connect('econotrack.db')
-    db.row_factory = sqlite3.Row
-    return db
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    # Creates an empty database file if it doesn't exist
-    if not os.path.exists('econotrack.db'):
-        conn = sqlite3.connect('econotrack.db')
+        conn = get_db()
+        conn.execute(
+            'INSERT INTO news (title, content, category) VALUES (?, ?, ?)',
+            (title, content, category)
+        )
+        conn.commit()
         conn.close()
-    
+
+        return redirect('/')
+
+    return render_template('add.html')
+
+
+# 🟢 DELETE
+@app.route('/delete/<int:id>')
+def delete(id):
+    conn = get_db()
+    conn.execute('DELETE FROM news WHERE id=?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect('/')
+
+
+# 🟢 EDIT
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    conn = get_db()
+
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        category = request.form['category']
+
+        conn.execute(
+            'UPDATE news SET title=?, content=?, category=? WHERE id=?',
+            (title, content, category, id)
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect('/')
+
+    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
+    conn.close()
+
+    return render_template('edit.html', news=news)
+
+
+# 🟢 VIEW ARTICLE
+@app.route('/view/<int:id>')
+def view(id):
+    conn = get_db()
+    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
+    conn.close()
+
+    return render_template('view.html', news=news)
+
+
+# RUN APP
+if __name__ == '__main__':
     app.run(debug=True)
- 
+
+    @app.route('/view/<int:id>')
+def view(id):
+    conn = get_db()
+    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
+    conn.close()
+
+    return render_template('view.html', news=news)
