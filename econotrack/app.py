@@ -14,7 +14,25 @@ def get_db():
 @app.route('/')
 def index():
     conn = get_db()
-    news = conn.execute('SELECT * FROM news').fetchall()
+
+    search = request.args.get('search', '')
+    category = request.args.get('category', '')
+
+    query = "SELECT * FROM news WHERE 1=1"
+    params = []
+
+    # Keyword Search
+    if search:
+        query += " AND (title LIKE ? OR content LIKE ?)"
+        params.append(f"%{search}%")
+        params.append(f"%{search}%")
+
+    # Category Filter
+    if category:
+        query += " AND category = ?"
+        params.append(category)
+
+    news = conn.execute(query, params).fetchall()
     conn.close()
 
     categorized = {}
@@ -25,7 +43,12 @@ def index():
             categorized[cat] = []
         categorized[cat].append(item)
 
-    return render_template('index.html', categorized=categorized)
+    return render_template(
+        'index.html',
+        categorized=categorized,
+        search=search,
+        category=category
+    )
 
 
 # 🟢 ADD NEWS
