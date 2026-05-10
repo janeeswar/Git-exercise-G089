@@ -1,130 +1,66 @@
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
-from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
+app.secret_key = "econotrack_secret"
 
-# Database connection
-def get_db():
-    conn = sqlite3.connect('database.db')
+def get_db_connection():
+    conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
     return conn
 
-
-# 🟢 HOME ROUTE (Categorized Feed)
-@app.route('/')
+# -------------------
+# HOME PAGE
+# -------------------
+@app.route("/")
 def index():
-    conn = get_db()
+    return "EconoTrack Home Page"
 
-    search = request.args.get('search', '')
-    category = request.args.get('category', '')
+# -------------------
+# LOGIN PAGE (basic placeholder)
+# -------------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        return f"Logged in as {email}"
+    return "Login Page"
 
-    query = "SELECT * FROM news WHERE 1=1"
-    params = []
+# -------------------
+# REGISTER PAGE (basic placeholder)
+# -------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        return f"Registered {username}"
+    return "Register Page"
 
-    # Keyword Search
-    if search:
-        query += " AND (title LIKE ? OR content LIKE ?)"
-        params.append(f"%{search}%")
-        params.append(f"%{search}%")
+# -------------------
+# DASHBOARD (YOUR MAIN TASK)
+# -------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    ...
 
-    # Category Filter
-    if category:
-        query += " AND category = ?"
-        params.append(category)
+@app.route("/dashboard")
+def dashboard():
 
-    news = conn.execute(query, params).fetchall()
+    conn = get_db_connection()
+
+    news = conn.execute("SELECT * FROM news").fetchall()
+
     conn.close()
 
-    categorized = {}
+    return render_template("dashboard.html", news=news)
 
-    for item in news:
-        cat = item['category']
-        if cat not in categorized:
-            categorized[cat] = []
-        categorized[cat].append(item)
-
-    return render_template(
-        'index.html',
-        categorized=categorized,
-        search=search,
-        category=category
-    )
-
-
-# 🟢 ADD NEWS
-@app.route('/add', methods=['GET', 'POST'])
-def add():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        category = request.form['category']
-
-        conn = get_db()
-        conn.execute(
-            'INSERT INTO news (title, content, category) VALUES (?, ?, ?)',
-            (title, content, category)
-        )
-        conn.commit()
-        conn.close()
-
-        return redirect('/')
-
-    return render_template('add.html')
-
-
-# 🟢 DELETE
-@app.route('/delete/<int:id>')
-def delete(id):
-    conn = get_db()
-    conn.execute('DELETE FROM news WHERE id=?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect('/')
-
-
-# 🟢 EDIT
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
-def edit(id):
-    conn = get_db()
-
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        category = request.form['category']
-
-        conn.execute(
-            'UPDATE news SET title=?, content=?, category=? WHERE id=?',
-            (title, content, category, id)
-        )
-        conn.commit()
-        conn.close()
-
-        return redirect('/')
-
-    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
-    conn.close()
-
-    return render_template('edit.html', news=news)
-
-
-# 🟢 VIEW ARTICLE
-@app.route('/view/<int:id>')
-def view(id):
-    conn = get_db()
-    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
-    conn.close()
-
-    return render_template('view.html', news=news)
-
-
-# RUN APP
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
 
-    @app.route('/view/<int:id>')
-def view(id):
-    conn = get_db()
-    news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
-    conn.close()
-
-    return render_template('view.html', news=news)
+# -------------------
+# RUN APP
+# -------------------
+if __name__ == "__main__":
+    app.run(debug=True)
