@@ -9,42 +9,37 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# -------------------
+
 # HOME PAGE
-# -------------------
 @app.route("/")
 def index():
     return "EconoTrack Home Page"
 
-# -------------------
-# LOGIN PAGE (basic placeholder)
-# -------------------
+
+# LOGIN PAGE
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
         return f"Logged in as {email}"
+
     return "Login Page"
 
-# -------------------
-# REGISTER PAGE (basic placeholder)
-# -------------------
+
+# REGISTER PAGE
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
         email = request.form.get("email")
+
         return f"Registered {username}"
+
     return "Register Page"
 
-# -------------------
-# DASHBOARD (YOUR MAIN TASK)
-# -------------------
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    ...
 
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
 
@@ -56,11 +51,7 @@ def dashboard():
 
     return render_template("dashboard.html", news=news)
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
-# -------------------
 # RUN APP
-# -------------------
 if __name__ == "__main__":
     app.run(debug=True)
