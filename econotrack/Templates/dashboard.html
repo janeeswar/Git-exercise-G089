@@ -40,3 +40,20 @@
 
 <p>Oil ↑ +2.3%</p>
 <p>Gold ↑ +1.5%</p>
+<h2>Resource Performance</h2>
+
+<div id="performance">
+    <div>🛢 Oil: <span id="oilPerformance"></span></div>
+    <div>🥇 Gold: <span id="goldPerformance"></span></div>
+</div>
+
+<h2>Latest News</h2>
+
+<ul>
+{% for item in news %}
+    <li>
+        <strong>{{ item['title'] }}</strong>
+        - {{ item['category'] }}
+    </li>
+{% endfor %}
+</ul>
