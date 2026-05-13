@@ -1,5 +1,6 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,52 +16,100 @@
 <body class="bg-light">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="#">📈 ECONOTRACK</a>
+
+            <a class="navbar-brand fw-bold" href="/">
+                📈 ECONOTRACK
+            </a>
+
+            <div>
+                <a href="/" class="btn btn-outline-light btn-sm me-2">
+                    Home
+                </a>
+
+                <a href="/dashboard" class="btn btn-outline-light btn-sm me-2">
+                    Dashboard
+                </a>
+
+                <a href="/login" class="btn btn-light btn-sm">
+                    Login
+                </a>
+            </div>
+
         </div>
     </nav>
 
     <!-- HERO SECTION -->
     <div class="container mt-5 text-center">
-        <h1 class="display-4">Welcome to EconoTrack</h1>
-        <p class="lead">
-            Tracking Oil, Gold, and Global Economic Shifts.
+
+        <h1 class="display-3 fw-bold">
+            Welcome to EconoTrack
+        </h1>
+
+        <p class="lead text-muted">
+            Your all-in-one platform for global economic intelligence.
         </p>
 
-        <hr>
+        <hr class="my-4">
 
-        <!-- TEAM SECTION -->
-        <div class="row mt-4">
+        <!-- PROMO SECTION -->
+        <div class="card shadow-sm border-0 p-4 mt-4 bg-white">
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Backend</h4>
-                    <p class="text-muted">
-                        Janeeswar: Auth & DB
-                    </p>
+            <div class="row align-items-center">
+
+                <div class="col-md-2 text-center">
+                    <h1 class="display-2">📊</h1>
                 </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Core System</h4>
-                    <p class="text-muted">
-                        Shamalan: News & CRUD
-                    </p>
-                </div>
-            </div>
+                <div class="col-md-6 text-start">
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Frontend/Charts</h4>
-                    <p class="text-muted">
-                        Linghernther: Visuals
+                    <h2 class="fw-bold text-primary">
+                        Track. Analyze. Stay Ahead.
+                    </h2>
+
+                    <p class="lead">
+                        Real-time updates on Oil, Gold, Climate, Politics, and global economic events.
                     </p>
+
+                    <p class="text-muted">
+                        EconoTrack helps users understand market movements and world economic trends in one centralized platform.
+                    </p>
+
                 </div>
+
+                <div class="col-md-4 border-start text-start">
+
+                    <h4 class="text-primary">
+                        Why EconoTrack?
+                    </h4>
+
+                    <ul class="list-group list-group-flush">
+
+                        <li class="list-group-item">
+                            ✅ Live Economic News
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ Categorized Content
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ Search & Filter System
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ User-Friendly Dashboard
+                        </li>
+
+                    </ul>
+
+                </div>
+
             </div>
 
         </div>
+
     </div>
 
     <!-- NEWS SECTION -->
@@ -69,85 +118,118 @@
         <!-- SEARCH + FILTER -->
         <form method="GET" class="mb-4">
 
-            <!-- SEARCH BAR -->
-            <input type="text"
-                   name="search"
-                   placeholder="Search news..."
-                   value="{{ search }}"
-                   class="form-control mb-2">
+            <div class="row">
 
-            <!-- CATEGORY FILTER -->
-            <select name="category" class="form-select mb-2">
-                <option value="">All Categories</option>
-                <option value="Oil">Oil</option>
-                <option value="Gold">Gold</option>
-                <option value="Climate">Climate</option>
-                <option value="Politics">Politics</option>
-                <option value="War">War</option>
-            </select>
+                <!-- SEARCH BAR -->
+                <div class="col-md-5">
+                    <input type="text"
+                           name="search"
+                           placeholder="Search economic news..."
+                           value="{{ search }}"
+                           class="form-control">
+                </div>
 
-            <!-- SEARCH BUTTON -->
-            <button type="submit" class="btn btn-success">
-                Search
-            </button>
+                <!-- CATEGORY FILTER -->
+                <div class="col-md-4">
+                    <select name="category" class="form-select">
+
+                        <option value="">All Categories</option>
+                        <option value="Oil">Oil</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Climate">Climate</option>
+                        <option value="Politics">Politics</option>
+                        <option value="War">War</option>
+
+                    </select>
+                </div>
+
+                <!-- SEARCH BUTTON -->
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-success w-100">
+                        🔍 Search News
+                    </button>
+                </div>
+
+            </div>
 
         </form>
 
-        <!-- ADD NEWS BUTTON -->
-        <a href="/add" class="btn btn-primary mb-4">
-            + Add News
-        </a>
+        <!-- ACTION BUTTONS -->
+        <div class="mb-4">
+
+            <a href="/add" class="btn btn-primary me-2">
+                + Add News
+            </a>
+
+            <a href="/" class="btn btn-outline-secondary">
+                Refresh Feed
+            </a>
+
+        </div>
 
         <!-- NEWS FEED -->
-        <h2 class="mb-4">📰 Economic News Feed</h2>
+        <h2 class="mb-4 fw-bold">
+            📰 Economic News Feed
+        </h2>
 
         {% for category, items in categorized.items() %}
 
-            <h3 class="mt-4 text-primary">
-                {{ category }}
-            </h3>
+            <div class="mt-5">
 
-            <hr>
+                <h3 class="text-primary fw-bold">
+                    {{ category }}
+                </h3>
 
-            {% for item in items %}
+                <hr>
 
-                <div class="card mb-3 shadow-sm">
+                {% for item in items %}
 
-                    <div class="card-body">
+                    <div class="card mb-4 shadow-sm border-0">
 
-                        <h5 class="card-title">
-                            {{ item.title }}
-                        </h5>
+                        <div class="card-body">
 
-                        <p class="card-text">
-                            {{ item.content }}
-                        </p>
+                            <h4 class="card-title fw-bold">
+                                {{ item.title }}
+                            </h4>
 
-                        <!-- BUTTONS -->
-                        <a href="/view/{{ item.id }}"
-                           class="btn btn-info btn-sm">
-                           View
-                        </a>
+                            <p class="card-text text-muted">
+                                {{ item.content }}
+                            </p>
 
-                        <a href="/edit/{{ item.id }}"
-                           class="btn btn-warning btn-sm">
-                           Edit
-                        </a>
+                            <span class="badge bg-primary mb-3">
+                                {{ item.category }}
+                            </span>
 
-                        <a href="/delete/{{ item.id }}"
-                           class="btn btn-danger btn-sm">
-                           Delete
-                        </a>
+                            <br>
+
+                            <!-- BUTTONS -->
+                            <a href="/view/{{ item.id }}"
+                               class="btn btn-info btn-sm">
+                               View
+                            </a>
+
+                            <a href="/edit/{{ item.id }}"
+                               class="btn btn-warning btn-sm">
+                               Edit
+                            </a>
+
+                            <a href="/delete/{{ item.id }}"
+                               class="btn btn-danger btn-sm">
+                               Delete
+                            </a>
+
+                        </div>
 
                     </div>
 
-                </div>
+                {% endfor %}
 
-            {% endfor %}
+            </div>
 
         {% endfor %}
 
     </div>
 
 </body>
+
 </html>
