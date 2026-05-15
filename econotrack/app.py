@@ -1,29 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
-<<<<<<< HEAD
+
 
 app = Flask(__name__)
 app.secret_key = "econotrack_secret"
 
 def get_db_connection():
-=======
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-<<<<<<< HEAD
-# Database connection
-=======
-# DATABASE
->>>>>>> cc85ea38287e663532f35054a3899f7f50e510d0
 def get_db():
->>>>>>> main
+
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
     return conn
-<<<<<<< HEAD
+
 
 
 # HOME PAGE
@@ -68,11 +62,11 @@ def dashboard():
     return render_template("dashboard.html", news=news)
 
 
-# RUN APP
-<<<<<<< HEAD
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-=======
+
 if __name__ == '__main__':
     app.run(debug=True)
 
@@ -83,7 +77,7 @@ def view(id):
     conn.close()
 
     return render_template('view.html', news=news)
-=======
+
 
 # HOME
 @app.route("/")
@@ -165,5 +159,60 @@ if __name__ == "__main__":
     conn.close()
 
     app.run(debug=True)
->>>>>>> cc85ea38287e663532f35054a3899f7f50e510d0
->>>>>>> main
+app.secret_key = "econotrack_secret"
+def create_price_table():
+
+    conn = sqlite3.connect("database.db")
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS prices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resource TEXT,
+            price REAL,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.close()
+
+create_price_table()
+@app.route("/add_prices")
+def add_prices():
+
+    conn = get_db_connection()
+
+    # Sample Oil Prices
+    conn.execute("INSERT INTO prices (resource, price) VALUES (?, ?)", ("Oil", 82.5))
+    conn.execute("INSERT INTO prices (resource, price) VALUES (?, ?)", ("Oil", 84.2))
+
+    # Sample Gold Prices
+    conn.execute("INSERT INTO prices (resource, price) VALUES (?, ?)", ("Gold", 2310.4))
+    conn.execute("INSERT INTO prices (resource, price) VALUES (?, ?)", ("Gold", 2298.7))
+
+    conn.commit()
+    conn.close()
+
+    return "Prices Added Successfully"
+@app.route("/dashboard")
+def dashboard():
+
+    conn = get_db_connection()
+
+    news = conn.execute("SELECT * FROM news").fetchall()
+
+    oil_prices = conn.execute(
+        "SELECT * FROM prices WHERE resource='Oil'"
+    ).fetchall()
+
+    gold_prices = conn.execute(
+        "SELECT * FROM prices WHERE resource='Gold'"
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "dashboard.html",
+        news=news,
+        oil_prices=oil_prices,
+        gold_prices=gold_prices
+    )
