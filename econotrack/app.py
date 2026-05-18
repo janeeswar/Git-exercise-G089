@@ -211,6 +211,9 @@ def add():
         content = request.form['content']
         category = request.form['category']
 
+        if not title or not content or not category:
+            return "Please fill all fields"
+
         conn = get_db()
 
         conn.execute(
@@ -286,9 +289,78 @@ def view(id):
         (id,)
     ).fetchone()
 
+    comments = conn.execute(
+        'SELECT * FROM comments WHERE news_id=?',
+        (id,)
+    ).fetchall()
+
+    likes = conn.execute(
+        "SELECT COUNT(*) as total FROM reactions WHERE news_id=?",
+        (id,)
+    ).fetchone()
+
     conn.close()
 
-    return render_template('view.html', news=news)
+    return render_template(
+        'view.html',
+        news=news,
+        comments=comments,
+        likes=likes['total']
+    )
+
+
+# ADD COMMENT
+@app.route('/comment/<int:id>', methods=['POST'])
+def comment(id):
+
+    username = request.form['username']
+    comment = request.form['comment']
+
+    conn = get_db()
+
+    conn.execute(
+        'INSERT INTO comments (news_id, username, comment) VALUES (?, ?, ?)',
+        (id, username, comment)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(f'/view/{id}')
+
+
+# LIKE NEWS
+@app.route('/like/<int:id>')
+def like(id):
+
+    conn = get_db()
+
+    conn.execute(
+        'INSERT INTO reactions (news_id, reaction) VALUES (?, ?)',
+        (id, 'like')
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(f'/view/{id}')
+
+
+# BOOKMARK NEWS
+@app.route('/bookmark/<int:id>')
+def bookmark(id):
+
+    conn = get_db()
+
+    conn.execute(
+        'INSERT INTO bookmarks (news_id) VALUES (?)',
+        (id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/')
 
 
 # ADD SAMPLE PRICES
@@ -355,6 +427,33 @@ def init_db():
         resource TEXT,
         price REAL,
         date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
+    # COMMENTS TABLE
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        news_id INTEGER,
+        username TEXT,
+        comment TEXT
+    )
+    ''')
+
+    # REACTIONS TABLE
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS reactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        news_id INTEGER,
+        reaction TEXT
+    )
+    ''')
+
+    # BOOKMARKS TABLE
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS bookmarks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        news_id INTEGER
     )
     ''')
 
