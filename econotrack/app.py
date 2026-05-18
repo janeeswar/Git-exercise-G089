@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 
@@ -7,15 +7,13 @@ app.secret_key = "econotrack_secret"
 
 
 # DATABASE CONNECTION
-
 def get_db():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
     return conn
 
 
 # HOME PAGE + NEWS FEED
-
 @app.route('/')
 def index():
 
@@ -60,8 +58,6 @@ def index():
 
 
 # REGISTER
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
@@ -95,8 +91,6 @@ def register():
 
 
 # LOGIN
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -118,7 +112,7 @@ def login():
 
         if user and check_password_hash(user['password'], password):
             session['user'] = email
-            return redirect('/')
+            return redirect('/dashboard')
 
         else:
             return 'Invalid login'
@@ -127,8 +121,6 @@ def login():
 
 
 # LOGOUT
-
-
 @app.route('/logout')
 def logout():
     session.pop('user', None)
@@ -136,8 +128,6 @@ def logout():
 
 
 # DASHBOARD
-
-
 @app.route('/dashboard')
 def dashboard():
 
@@ -149,17 +139,30 @@ def dashboard():
     try:
         news = conn.execute('SELECT * FROM news').fetchall()
 
+        oil_prices = conn.execute(
+            "SELECT * FROM prices WHERE resource='Oil'"
+        ).fetchall()
+
+        gold_prices = conn.execute(
+            "SELECT * FROM prices WHERE resource='Gold'"
+        ).fetchall()
+
     except:
         news = []
+        oil_prices = []
+        gold_prices = []
 
     conn.close()
 
-    return render_template('dashboard.html', news=news)
+    return render_template(
+        'dashboard.html',
+        news=news,
+        oil_prices=oil_prices,
+        gold_prices=gold_prices
+    )
 
 
 # PROFILE MANAGEMENT
-
-
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
 
@@ -199,8 +202,6 @@ def profile():
 
 
 # ADD NEWS
-
-
 @app.route('/add', methods=['GET', 'POST'])
 def add():
 
@@ -226,7 +227,6 @@ def add():
 
 
 # EDIT NEWS
-
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
 
@@ -259,8 +259,6 @@ def edit(id):
 
 
 # DELETE NEWS
-
-
 @app.route('/delete/<int:id>')
 def delete(id):
 
@@ -278,8 +276,6 @@ def delete(id):
 
 
 # VIEW ARTICLE
-
-
 @app.route('/view/<int:id>')
 def view(id):
 
@@ -295,9 +291,39 @@ def view(id):
     return render_template('view.html', news=news)
 
 
+# ADD SAMPLE PRICES
+@app.route('/add_prices')
+def add_prices():
+
+    conn = get_db()
+
+    conn.execute(
+        "INSERT INTO prices (resource, price) VALUES (?, ?)",
+        ("Oil", 82.5)
+    )
+
+    conn.execute(
+        "INSERT INTO prices (resource, price) VALUES (?, ?)",
+        ("Oil", 84.2)
+    )
+
+    conn.execute(
+        "INSERT INTO prices (resource, price) VALUES (?, ?)",
+        ("Gold", 2310.4)
+    )
+
+    conn.execute(
+        "INSERT INTO prices (resource, price) VALUES (?, ?)",
+        ("Gold", 2298.7)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "Prices Added Successfully"
+
+
 # CREATE DATABASE TABLES
-
-
 def init_db():
 
     conn = sqlite3.connect('database.db')
@@ -322,13 +348,21 @@ def init_db():
     )
     ''')
 
+    # PRICES TABLE
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS prices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        resource TEXT,
+        price REAL,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
     conn.commit()
     conn.close()
 
 
 # RUN APP
-
-
 if __name__ == '__main__':
 
     init_db()
