@@ -13,7 +13,7 @@ def get_db():
     return conn
 
 
-# HOME PAGE + NEWS FEED
+# HOME PAGE
 @app.route('/')
 def index():
 
@@ -25,29 +25,31 @@ def index():
     query = "SELECT * FROM news WHERE 1=1"
     params = []
 
-    # SEARCH FEATURE
+    # SEARCH
     if search:
         query += " AND (title LIKE ? OR content LIKE ?)"
         params.append(f"%{search}%")
         params.append(f"%{search}%")
 
-    # FILTER FEATURE
+    # FILTER
     if category:
-        query += " AND category = ?"
+        query += " AND category=?"
         params.append(category)
 
     news = conn.execute(query, params).fetchall()
-    conn.close()
 
     categorized = {}
 
     for item in news:
+
         cat = item['category']
 
         if cat not in categorized:
             categorized[cat] = []
 
         categorized[cat].append(item)
+
+    conn.close()
 
     return render_template(
         'index.html',
@@ -69,10 +71,10 @@ def register():
         hashed_password = generate_password_hash(password)
 
         conn = get_db()
-        cursor = conn.cursor()
 
         try:
-            cursor.execute(
+
+            conn.execute(
                 'INSERT INTO users (email, password) VALUES (?, ?)',
                 (email, hashed_password)
             )
@@ -81,7 +83,7 @@ def register():
 
         except:
             conn.close()
-            return 'User already exists'
+            return "User already exists"
 
         conn.close()
 
@@ -100,22 +102,22 @@ def login():
         password = request.form['password']
 
         conn = get_db()
-        cursor = conn.cursor()
 
-        cursor.execute(
+        user = conn.execute(
             'SELECT * FROM users WHERE email=?',
             (email,)
-        )
+        ).fetchone()
 
-        user = cursor.fetchone()
         conn.close()
 
         if user and check_password_hash(user['password'], password):
+
             session['user'] = email
+
             return redirect('/dashboard')
 
         else:
-            return 'Invalid login'
+            return "Invalid Login"
 
     return render_template('login.html')
 
@@ -123,7 +125,9 @@ def login():
 # LOGOUT
 @app.route('/logout')
 def logout():
+
     session.pop('user', None)
+
     return redirect('/login')
 
 
@@ -136,21 +140,17 @@ def dashboard():
 
     conn = get_db()
 
-    try:
-        news = conn.execute('SELECT * FROM news').fetchall()
+    news = conn.execute(
+        'SELECT * FROM news'
+    ).fetchall()
 
-        oil_prices = conn.execute(
-            "SELECT * FROM prices WHERE resource='Oil'"
-        ).fetchall()
+    oil_prices = conn.execute(
+        "SELECT * FROM prices WHERE resource='Oil'"
+    ).fetchall()
 
-        gold_prices = conn.execute(
-            "SELECT * FROM prices WHERE resource='Gold'"
-        ).fetchall()
-
-    except:
-        news = []
-        oil_prices = []
-        gold_prices = []
+    gold_prices = conn.execute(
+        "SELECT * FROM prices WHERE resource='Gold'"
+    ).fetchall()
 
     conn.close()
 
@@ -162,7 +162,7 @@ def dashboard():
     )
 
 
-# PROFILE MANAGEMENT
+# PROFILE
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
 
@@ -170,20 +170,17 @@ def profile():
         return redirect('/login')
 
     conn = get_db()
-    cursor = conn.cursor()
 
-    cursor.execute(
+    user = conn.execute(
         'SELECT * FROM users WHERE email=?',
         (session['user'],)
-    )
-
-    user = cursor.fetchone()
+    ).fetchone()
 
     if request.method == 'POST':
 
         new_email = request.form['email']
 
-        cursor.execute(
+        conn.execute(
             'UPDATE users SET email=? WHERE email=?',
             (new_email, session['user'])
         )
@@ -247,6 +244,7 @@ def edit(id):
         )
 
         conn.commit()
+
         conn.close()
 
         return redirect('/')
@@ -273,6 +271,7 @@ def delete(id):
     )
 
     conn.commit()
+
     conn.close()
 
     return redirect('/')
@@ -295,7 +294,12 @@ def view(id):
     ).fetchall()
 
     likes = conn.execute(
-        "SELECT COUNT(*) as total FROM reactions WHERE news_id=?",
+        'SELECT COUNT(*) AS total FROM reactions WHERE news_id=?',
+        (id,)
+    ).fetchone()
+
+    bookmarked = conn.execute(
+        'SELECT * FROM bookmarks WHERE news_id=?',
         (id,)
     ).fetchone()
 
@@ -305,16 +309,20 @@ def view(id):
         'view.html',
         news=news,
         comments=comments,
-        likes=likes['total']
+        likes=likes['total'],
+        bookmarked=bookmarked
     )
 
 
-# ADD COMMENT
+# COMMENT SYSTEM
 @app.route('/comment/<int:id>', methods=['POST'])
 def comment(id):
 
     username = request.form['username']
     comment = request.form['comment']
+
+    if not username or not comment:
+        return redirect(f'/view/{id}')
 
     conn = get_db()
 
@@ -324,12 +332,31 @@ def comment(id):
     )
 
     conn.commit()
+
     conn.close()
 
     return redirect(f'/view/{id}')
 
 
-# LIKE NEWS
+# DELETE COMMENT
+@app.route('/delete_comment/<int:id>/<int:news_id>')
+def delete_comment(id, news_id):
+
+    conn = get_db()
+
+    conn.execute(
+        'DELETE FROM comments WHERE id=?',
+        (id,)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    return redirect(f'/view/{news_id}')
+
+
+# LIKE SYSTEM
 @app.route('/like/<int:id>')
 def like(id):
 
@@ -341,26 +368,56 @@ def like(id):
     )
 
     conn.commit()
+
     conn.close()
 
     return redirect(f'/view/{id}')
 
 
-# BOOKMARK NEWS
+# BOOKMARK SYSTEM
 @app.route('/bookmark/<int:id>')
 def bookmark(id):
 
     conn = get_db()
 
-    conn.execute(
-        'INSERT INTO bookmarks (news_id) VALUES (?)',
+    existing = conn.execute(
+        'SELECT * FROM bookmarks WHERE news_id=?',
         (id,)
-    )
+    ).fetchone()
 
-    conn.commit()
+    if not existing:
+
+        conn.execute(
+            'INSERT INTO bookmarks (news_id) VALUES (?)',
+            (id,)
+        )
+
+        conn.commit()
+
     conn.close()
 
-    return redirect('/')
+    return redirect(f'/view/{id}')
+
+
+# VIEW SAVED ARTICLES
+@app.route('/bookmarks')
+def bookmarks():
+
+    conn = get_db()
+
+    saved = conn.execute('''
+        SELECT news.*
+        FROM news
+        JOIN bookmarks
+        ON news.id = bookmarks.news_id
+    ''').fetchall()
+
+    conn.close()
+
+    return render_template(
+        'bookmarks.html',
+        saved=saved
+    )
 
 
 # ADD SAMPLE PRICES
@@ -376,32 +433,24 @@ def add_prices():
 
     conn.execute(
         "INSERT INTO prices (resource, price) VALUES (?, ?)",
-        ("Oil", 84.2)
-    )
-
-    conn.execute(
-        "INSERT INTO prices (resource, price) VALUES (?, ?)",
         ("Gold", 2310.4)
     )
 
-    conn.execute(
-        "INSERT INTO prices (resource, price) VALUES (?, ?)",
-        ("Gold", 2298.7)
-    )
-
     conn.commit()
+
     conn.close()
 
     return "Prices Added Successfully"
 
 
-# CREATE DATABASE TABLES
+# CREATE DATABASE
 def init_db():
 
     conn = sqlite3.connect('database.db')
+
     cursor = conn.cursor()
 
-    # USERS TABLE
+    # USERS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -410,17 +459,17 @@ def init_db():
     )
     ''')
 
-    # NEWS TABLE
+    # NEWS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS news (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        category TEXT NOT NULL
+        title TEXT,
+        content TEXT,
+        category TEXT
     )
     ''')
 
-    # PRICES TABLE
+    # PRICES
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS prices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -430,7 +479,7 @@ def init_db():
     )
     ''')
 
-    # COMMENTS TABLE
+    # COMMENTS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -440,7 +489,7 @@ def init_db():
     )
     ''')
 
-    # REACTIONS TABLE
+    # REACTIONS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS reactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -449,7 +498,7 @@ def init_db():
     )
     ''')
 
-    # BOOKMARKS TABLE
+    # BOOKMARKS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS bookmarks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -458,6 +507,7 @@ def init_db():
     ''')
 
     conn.commit()
+
     conn.close()
 
 

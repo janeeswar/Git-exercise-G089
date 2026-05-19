@@ -2,125 +2,161 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ news.title }}</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>
-        {{ news.title }}
-    </title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
 
     <!-- NAVBAR -->
     <nav class="navbar navbar-dark bg-dark shadow-sm">
-
         <div class="container">
 
-            <a class="navbar-brand fw-bold"
-               href="/">
-               📈 ECONOTRACK
+            <a class="navbar-brand fw-bold" href="/">
+                📈 ECONOTRACK
             </a>
 
-        </div>
+            <div>
 
-    </nav>
-
-    <div class="container mt-5">
-
-        <!-- BACK BUTTON -->
-        <a href="/"
-           class="btn btn-secondary mb-4">
-           ← Back
-        </a>
-
-        <!-- ARTICLE -->
-        <div class="card shadow-sm border-0 p-4">
-
-            <h1 class="fw-bold">
-                {{ news.title }}
-            </h1>
-
-            <span class="badge bg-primary mb-3">
-                {{ news.category }}
-            </span>
-
-            <p class="lead">
-                {{ news.content }}
-            </p>
-
-            <!-- INTERACTION BUTTONS -->
-            <div class="mt-4">
-
-                <a href="/like/{{ news.id }}"
-                   class="btn btn-danger me-2">
-                   ❤️ Like ({{ likes }})
+                <a href="/" class="btn btn-outline-light btn-sm">
+                    Home
                 </a>
 
-                <a href="/bookmark/{{ news.id }}"
-                   class="btn btn-warning">
-                   🔖 Bookmark
+                <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                    Dashboard
                 </a>
 
             </div>
 
         </div>
+    </nav>
 
-        <!-- COMMENTS SECTION -->
-        <div class="card shadow-sm border-0 p-4 mt-5">
 
-            <h3 class="fw-bold mb-4">
-                💬 Comments
-            </h3>
+    <!-- ARTICLE SECTION -->
+    <div class="container mt-5">
 
-            <!-- COMMENT FORM -->
-            <form action="/comment/{{ news.id }}"
-                  method="POST">
+        <div class="card shadow-lg border-0">
 
-                <input type="text"
-                       name="username"
-                       placeholder="Your Name"
-                       class="form-control mb-3"
-                       required>
+            <div class="card-body p-5">
 
-                <textarea name="comment"
-                          placeholder="Write your comment..."
-                          class="form-control mb-3"
-                          rows="4"
-                          required></textarea>
+                <!-- CATEGORY -->
+                <span class="badge bg-primary mb-3">
+                    {{ news.category }}
+                </span>
 
-                <button type="submit"
-                        class="btn btn-success">
-                        Post Comment
-                </button>
+                <!-- TITLE -->
+                <h1 class="fw-bold">
+                    {{ news.title }}
+                </h1>
 
-            </form>
+                <hr>
 
-            <hr>
+                <!-- CONTENT -->
+                <p class="lead text-muted">
+                    {{ news.content }}
+                </p>
 
-            <!-- COMMENT LOOP -->
-            {% for comment in comments %}
+                <hr>
 
-                <div class="border rounded p-3 mb-3 bg-light">
+                <!-- INTERACTION BUTTONS -->
+                <div class="mt-4">
 
-                    <h6 class="fw-bold text-primary">
-                        {{ comment.username }}
-                    </h6>
+                    <!-- LIKE -->
+                    <a href="/like/{{ news.id }}"
+                       class="btn btn-danger me-2">
 
-                    <p class="mb-0">
-                        {{ comment.comment }}
-                    </p>
+                        ❤️ Like ({{ likes }})
+
+                    </a>
+
+                    <!-- BOOKMARK -->
+                    <a href="/bookmark/{{ news.id }}"
+                       class="btn btn-warning me-2">
+
+                        🔖 Save Article
+
+                    </a>
+
+                    <!-- BACK -->
+                    <a href="/"
+                       class="btn btn-secondary">
+
+                        ⬅ Back
+
+                    </a>
 
                 </div>
 
-            {% endfor %}
+            </div>
+
+        </div>
+
+
+        <!-- COMMENTS SECTION -->
+        <div class="card shadow-sm mt-5 border-0">
+
+            <div class="card-body">
+
+                <h3 class="fw-bold mb-4">
+                    💬 Comments
+                </h3>
+
+                <!-- COMMENT FORM -->
+                <form action="/comment/{{ news.id }}" method="POST">
+
+                    <input type="text"
+                           name="username"
+                           placeholder="Your Name"
+                           class="form-control mb-3"
+                           required>
+
+                    <textarea name="comment"
+                              placeholder="Write a comment..."
+                              class="form-control mb-3"
+                              rows="4"
+                              required></textarea>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        Post Comment
+
+                    </button>
+
+                </form>
+
+                <hr class="my-4">
+
+                <!-- DISPLAY COMMENTS -->
+                {% for item in comments %}
+
+                    <div class="border rounded p-3 mb-3 bg-light">
+
+                        <h5 class="fw-bold">
+                            {{ item.username }}
+                        </h5>
+
+                        <p>
+                            {{ item.comment }}
+                        </p>
+
+                        <!-- DELETE COMMENT -->
+                        <a href="/delete_comment/{{ item.id }}/{{ news.id }}"
+                           class="btn btn-sm btn-danger">
+
+                            Delete
+
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
         </div>
 
