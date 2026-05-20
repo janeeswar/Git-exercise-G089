@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>EconoTrack Dashboard</title>
 
     <!-- Chart.js -->
@@ -10,89 +12,157 @@
 
 <body>
 
-<h1>EconoTrack Dashboard</h1>
+    <h1>EconoTrack Dashboard</h1>
 
-<h2>Oil Price Chart</h2>
-<canvas id="oilChart"></canvas>
+    <!-- NAVIGATION -->
 
-<h2>Gold Price Chart</h2>
-<canvas id="goldChart"></canvas>
+    <div>
 
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+        <a href="/">Home</a>
+
+        <a href="/profile">Profile</a>
+
+        <a href="/bookmarks">Saved</a>
+
+        <a href="/logout">Logout</a>
+
+    </div>
+
+    <hr>
+
+    <!-- FILTERS -->
+
+    <div>
+
+        <label>Timeframe:</label>
+
+        <select>
+            <option>1 Week</option>
+            <option>1 Month</option>
+            <option>6 Months</option>
+        </select>
+
+        <label>Resource:</label>
+
+        <select>
+            <option>Oil</option>
+            <option>Gold</option>
+        </select>
+
+    </div>
+
+    <hr>
+
+    <!-- RESOURCE PERFORMANCE -->
+
+    <h2>Resource Performance</h2>
+
+    <div id="performance">
+
+        <div>
+            🛢 Oil:
+            <span id="oilPerformance">+2.3%</span>
+        </div>
+
+        <div>
+            🥇 Gold:
+            <span id="goldPerformance">+1.5%</span>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- LATEST NEWS -->
+
+    <h2>Latest News</h2>
+
+    <ul>
+
+        {% for item in news %}
+
+            <li>
+
+                <strong>{{ item['title'] }}</strong>
+
+                - {{ item['category'] }}
+
+            </li>
+
+        {% endfor %}
+
+    </ul>
+
+    <hr>
+
+    <!-- OIL PRICES -->
+
+    <h2>Oil Prices</h2>
+
+    <ul>
+
+        {% for oil in oil_prices %}
+
+            <li>{{ oil['price'] }}</li>
+
+        {% endfor %}
+
+    </ul>
+
+    <!-- GOLD PRICES -->
+
+    <h2>Gold Prices</h2>
+
+    <ul>
+
+        {% for gold in gold_prices %}
+
+            <li>{{ gold['price'] }}</li>
+
+        {% endfor %}
+
+    </ul>
+
+    <hr>
+
+    <!-- CHART -->
+
+    <h2>Price Chart</h2>
+
+    <canvas id="priceChart"></canvas>
+
+    <script>
+
+        const ctx = document.getElementById('priceChart');
+
+        new Chart(ctx, {
+
+            type: 'line',
+
+            data: {
+
+                labels: ['Day 1', 'Day 2'],
+
+                datasets: [
+
+                    {
+                        label: 'Oil Prices',
+                        data: [82.5, 84.2]
+                    },
+
+                    {
+                        label: 'Gold Prices',
+                        data: [2310.4, 2298.7]
+                    }
+
+                ]
+
+            }
+
+        });
+
+    </script>
 
 </body>
+
 </html>
-<div>
-<label>Timeframe:</label>
-<select>
-<option>1 Week</option>
-<option>1 Month</option>
-<option>6 Months</option>
-</select>
-
-<label>Resource:</label>
-<select>
-<option>Oil</option>
-<option>Gold</option>
-</select>
-</div>
-<h2>Resource Performance</h2>
-
-<p>Oil ↑ +2.3%</p>
-<p>Gold ↑ +1.5%</p>
-<h2>Resource Performance</h2>
-
-<div id="performance">
-    <div>🛢 Oil: <span id="oilPerformance"></span></div>
-    <div>🥇 Gold: <span id="goldPerformance"></span></div>
-</div>
-
-<h2>Latest News</h2>
-
-<ul>
-{% for item in news %}
-    <li>
-        <strong>{{ item['title'] }}</strong>
-        - {{ item['category'] }}
-    </li>
-{% endfor %}
-</ul>
-<h2>Oil Prices</h2>
-
-<ul>
-{% for oil in oil_prices %}
-    <li>{{ oil['price'] }}</li>
-{% endfor %}
-</ul>
-
-<h2>Gold Prices</h2>
-
-<ul>
-{% for gold in gold_prices %}
-    <li>{{ gold['price'] }}</li>
-{% endfor %}
-</ul>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<canvas id="priceChart"></canvas>
-
-<script>
-const ctx = document.getElementById('priceChart');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Day 1', 'Day 2'],
-        datasets: [
-            {
-                label: 'Oil Prices',
-                data: [82.5, 84.2]
-            },
-            {
-                label: 'Gold Prices',
-                data: [2310.4, 2298.7]
-            }
-        ]
-    }
-});
-</script>

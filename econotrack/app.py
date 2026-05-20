@@ -17,6 +17,9 @@ def get_db():
 @app.route('/')
 def index():
 
+    if 'user' not in session:
+        return redirect('/login')
+
     conn = get_db()
 
     search = request.args.get('search', '')
@@ -114,7 +117,7 @@ def login():
 
             session['user'] = email
 
-            return redirect('/dashboard')
+            return redirect('/')
 
         else:
             return "Invalid Login"

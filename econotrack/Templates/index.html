@@ -70,27 +70,41 @@
 
             <div>
 
-                <a href="/" class="btn btn-outline-light btn-sm me-2">
-                    Home
-                </a>
+    {% if session.get('user') %}
 
-                <a href="/dashboard" class="btn btn-outline-light btn-sm me-2">
-                    Dashboard
-                </a>
+        <a href="/" class="btn btn-outline-light btn-sm me-2">
+            Home
+        </a>
 
-                <a href="/profile" class="btn btn-outline-light btn-sm me-2">
-                    Profile
-                </a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm me-2">
+            Dashboard
+        </a>
 
-                <a href="/bookmarks" class="btn btn-warning btn-sm me-2">
-                    🔖 Saved
-                </a>
+        <a href="/profile" class="btn btn-outline-light btn-sm me-2">
+            Profile
+        </a>
 
-                <a href="/logout" class="btn btn-danger btn-sm">
-                    Logout
-                </a>
+        <a href="/bookmarks" class="btn btn-warning btn-sm me-2">
+            🔖 Saved
+        </a>
 
-            </div>
+        <a href="/logout" class="btn btn-danger btn-sm">
+            Logout
+        </a>
+
+    {% else %}
+
+        <a href="/login" class="btn btn-outline-light btn-sm me-2">
+            Login
+        </a>
+
+        <a href="/register" class="btn btn-success btn-sm">
+            Register
+        </a>
+
+    {% endif %}
+
+</div>
 
         </div>
 
