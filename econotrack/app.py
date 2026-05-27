@@ -2,14 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 app.secret_key = "econotrack_secret"
 
 def get_db_connection():
-from flask import Flask, render_template, request, redirect, session
+import flask
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 app.secret_key = "secret123"
 
 def get_db():
@@ -29,9 +29,9 @@ def index():
 # LOGIN PAGE
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+    if flask.request.method == "POST":
+        email = flask.request.form.get("email")
+        password = flask.request.form.get("password")
         return f"Logged in as {email}"
 
     return "Login Page"
@@ -40,9 +40,9 @@ def login():
 # REGISTER PAGE
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
+    if flask.request.method == "POST":
+        username = flask.request.form.get("username")
+        email = flask.request.form.get("email")
 
         return f"Registered {username}"
 
@@ -59,7 +59,7 @@ def dashboard():
 
     conn.close()
 
-    return render_template("dashboard.html", news=news)
+    return flask.render_template("dashboard.html", news=news)
 
 
 
@@ -76,22 +76,22 @@ def view(id):
     news = conn.execute('SELECT * FROM news WHERE id=?', (id,)).fetchone()
     conn.close()
 
-    return render_template('view.html', news=news)
+    return flask.render_template('view.html', news=news)
 
 
 # HOME
 @app.route("/")
 def home():
-    if "user" in session:
-        return render_template("dashboard.html")
-    return render_template("index.html")
+    if "user" in flask.session:
+        return flask.render_template("dashboard.html")
+    return flask.render_template("index.html")
 
 # REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+    if flask.request.method == "POST":
+        email = flask.request.form["email"]
+        password = flask.request.form["password"]
 
         hashed = generate_password_hash(password)
 
@@ -109,16 +109,16 @@ def register():
             return "User already exists"
 
         conn.close()
-        return redirect("/login")
+        return flask.redirect("/login")
 
-    return render_template("register.html")
+    return flask.render_template("register.html")
 
 # LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+    if flask.request.method == "POST":
+        email = flask.request.form["email"]
+        password = flask.request.form["password"]
 
         conn = get_db()
         cursor = conn.cursor()
@@ -129,18 +129,18 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
-            session["user"] = email
-            return redirect("/")
+            flask.session["user"] = email
+            return flask.redirect("/")
         else:
             return "Invalid login"
 
-    return render_template("login.html")
+    return flask.render_template("login.html")
 
 # LOGOUT
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
-    return redirect("/")
+    flask.session.pop("user", None)
+    return flask.redirect("/")
 
 # CREATE TABLE + RUN
 if __name__ == "__main__":
@@ -210,7 +210,7 @@ def dashboard():
 
     conn.close()
 
-    return render_template(
+    return flask.render_template(
         "dashboard.html",
         news=news,
         oil_prices=oil_prices,
