@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oil Analysis</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+    <a href="/dashboard" class="btn btn-light btn-sm">Back to Dashboard</a>
+</nav>
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">🛢 Crude Oil / Fuel Impact Analysis</h1>
+
+    <p class="text-muted">
+        Live crude oil trend, petrol impact, economic prediction, and related oil news in one place.
+    </p>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3 class="fw-bold">Live Crude Oil Price Trend</h3>
+
+        <p class="text-muted">
+            Last updated: <span id="lastUpdated">Loading...</span>
+        </p>
+
+        <canvas id="oilChart"></canvas>
+
+    </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3>Live Oil Trend</h3>
+
+        <h2 id="oilTrend">Loading...</h2>
+
+        <p id="oilPrediction" class="text-muted">
+            Loading prediction...
+        </p>
+
+    </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3>Live Economic Impact</h3>
+
+        <p id="oilImpact">
+            Loading economic impact...
+        </p>
+
+    </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3>Oil Economic Explanation</h3>
+
+        <p>
+            Crude oil prices affect petrol prices, transportation costs, delivery charges, and production costs.
+            When crude oil becomes more expensive, daily expenses may also increase because many industries depend on fuel.
+        </p>
+
+    </div>
+
+    <h3 class="mt-5">Related Oil News</h3>
+
+    {% for item in news %}
+
+        <div class="card p-3 shadow-sm mt-3">
+
+            <h5>{{ item['title'] }}</h5>
+
+            <p>
+                {{ item['content'][:150] }}...
+            </p>
+
+            <a href="/view/{{ item['id'] }}" class="btn btn-dark btn-sm">
+                Read More
+            </a>
+
+        </div>
+
+    {% else %}
+
+        <p class="text-muted">
+            No oil news available yet.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+<script>
+
+    const ctx = document.getElementById('oilChart');
+
+    const oilChart = new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: [],
+
+            datasets: [
+                {
+                    label: 'Crude Oil Prices',
+                    data: [],
+                    borderWidth: 3
+                }
+            ]
+
+        }
+
+    });
+
+    function loadOilPrices() {
+
+        fetch('/api/live-prices')
+            .then(response => response.json())
+            .then(data => {
+
+                oilChart.data.labels = data.labels;
+                oilChart.data.datasets[0].data = data.oil;
+
+                oilChart.update();
+
+                document.getElementById('lastUpdated').innerText =
+                    new Date().toLocaleTimeString();
+
+                document.getElementById('oilTrend').innerText =
+                    data.oil_trend + " by " + data.oil_change;
+
+                document.getElementById('oilPrediction').innerText =
+                    data.oil_prediction;
+
+                document.getElementById('oilImpact').innerText =
+                    data.oil_impact;
+
+                console.log("Oil chart source:", data.source);
+
+            });
+
+    }
+
+    loadOilPrices();
+
+    setInterval(loadOilPrices, 60000);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold vs Oil Comparison</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+    <a href="/dashboard" class="btn btn-light btn-sm">Back to Dashboard</a>
+</nav>
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">📊 Gold vs Oil Comparison</h1>
+
+    <p class="text-muted">
+        Compare live gold and crude oil trends with automatic economic impact prediction.
+    </p>
+
+    <p class="text-muted">
+        Last updated: <span id="lastUpdated">Loading...</span>
+    </p>
+
+    <div class="row g-4 mt-3">
+
+        <div class="col-md-6">
+            <div class="card stat-box shadow-sm p-4">
+                <h4>🥇 Gold Trend</h4>
+                <h2 id="goldTrend">Loading...</h2>
+                <p id="goldPrediction" class="text-muted">Loading prediction...</p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card stat-box shadow-sm p-4">
+                <h4>🛢 Oil Trend</h4>
+                <h2 id="oilTrend">Loading...</h2>
+                <p id="oilPrediction" class="text-muted">Loading prediction...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm p-4 mt-5">
+
+        <h3 class="fw-bold">Live Commodity Comparison Chart</h3>
+
+        <canvas id="compareChart"></canvas>
+
+    </div>
+
+    <div class="card shadow-sm p-4 mt-5">
+
+        <h3 class="fw-bold">Economic Risk Explanation</h3>
+
+        <p id="comparisonImpact">
+            Loading economic impact...
+        </p>
+
+    </div>
+
+</div>
+
+<script>
+
+    const ctx = document.getElementById('compareChart');
+
+    const compareChart = new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: [],
+
+            datasets: [
+
+                {
+                    label: 'Gold Prices',
+                    data: [],
+                    borderWidth: 3
+                },
+
+                {
+                    label: 'Crude Oil Prices',
+                    data: [],
+                    borderWidth: 3
+                }
+
+            ]
+
+        }
+
+    });
+
+    function loadComparisonData() {
+
+        fetch('/api/live-prices')
+            .then(response => response.json())
+            .then(data => {
+
+                compareChart.data.labels = data.labels;
+                compareChart.data.datasets[0].data = data.gold;
+                compareChart.data.datasets[1].data = data.oil;
+
+                compareChart.update();
+
+                document.getElementById('lastUpdated').innerText =
+                    new Date().toLocaleTimeString();
+
+                document.getElementById('goldTrend').innerText =
+                    data.gold_trend + " (" + data.gold_change + ")";
+
+                document.getElementById('oilTrend').innerText =
+                    data.oil_trend + " (" + data.oil_change + ")";
+
+                document.getElementById('goldPrediction').innerText =
+                    data.gold_prediction;
+
+                document.getElementById('oilPrediction').innerText =
+                    data.oil_prediction;
+
+                if (data.oil_change > data.gold_change) {
+
+                    document.getElementById('comparisonImpact').innerText =
+                        "Oil is showing stronger movement than gold. This may create higher pressure on petrol, transport, delivery, and daily living costs.";
+
+                }
+
+                else if (data.gold_change > data.oil_change) {
+
+                    document.getElementById('comparisonImpact').innerText =
+                        "Gold is showing stronger movement than oil. This may indicate higher investor fear, inflation concerns, or market uncertainty.";
+
+                }
+
+                else {
+
+                    document.getElementById('comparisonImpact').innerText =
+                        "Gold and oil are moving at a similar level. The market may be showing balanced commodity movement.";
+
+                }
+
+                console.log("Compare chart source:", data.source);
+
+            });
+
+    }
+
+    loadComparisonData();
+
+    setInterval(loadComparisonData, 60000);
+
+</script>
+
+</body>
+
+</html>

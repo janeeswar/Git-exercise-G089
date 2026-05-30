@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Analysis</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+    <a href="/dashboard" class="btn btn-light btn-sm">Back to Dashboard</a>
+</nav>
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">🥇 Gold Analysis</h1>
+
+    <p class="text-muted">
+        Live gold-related market trend, economic prediction, and related news in one place.
+    </p>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3 class="fw-bold">Live Gold Price Trend</h3>
+
+        <p class="text-muted">
+            Last updated: <span id="lastUpdated">Loading...</span>
+        </p>
+
+        <canvas id="goldChart"></canvas>
+
+    </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3>Gold Economic Impact</h3>
+
+        <p>
+            Gold usually increases when investors are worried about inflation, recession, war, or political instability.
+            During uncertain economic conditions, investors often move money into gold because it is seen as a safer asset.
+        </p>
+
+    </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+
+        <h3>Prediction</h3>
+
+        <p>
+            If inflation or global uncertainty increases, gold prices may rise because demand for safe investments becomes higher.
+        </p>
+
+    </div>
+
+    <h3 class="mt-5">Related Gold News</h3>
+
+    {% for item in news %}
+
+        <div class="card p-3 shadow-sm mt-3">
+
+            <h5>{{ item['title'] }}</h5>
+
+            <p>
+                {{ item['content'][:150] }}...
+            </p>
+
+            <a href="/view/{{ item['id'] }}" class="btn btn-warning btn-sm">
+                Read More
+            </a>
+
+        </div>
+
+    {% else %}
+
+        <p class="text-muted">
+            No gold news available yet.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+<script>
+
+    const ctx = document.getElementById('goldChart');
+
+    const goldChart = new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: [],
+
+            datasets: [
+                {
+                    label: 'Gold Prices',
+                    data: [],
+                    borderWidth: 3
+                }
+            ]
+
+        }
+
+    });
+
+    function loadGoldPrices() {
+
+        fetch('/api/live-prices')
+            .then(response => response.json())
+            .then(data => {
+
+                goldChart.data.labels = data.labels;
+                goldChart.data.datasets[0].data = data.gold;
+
+                goldChart.update();
+
+                document.getElementById('lastUpdated').innerText =
+                    new Date().toLocaleTimeString();
+
+                console.log("Gold chart source:", data.source);
+
+            });
+
+    }
+
+    loadGoldPrices();
+
+    setInterval(loadGoldPrices, 60000);
+
+</script>
+
+</body>
+
+</html>

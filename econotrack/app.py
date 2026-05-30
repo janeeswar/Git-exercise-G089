@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+import requests
 
 app = Flask(__name__)
 app.secret_key = "econotrack_secret"
@@ -141,29 +142,7 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
 
-    conn = get_db()
-
-    news = conn.execute(
-        'SELECT * FROM news'
-    ).fetchall()
-
-    oil_prices = conn.execute(
-        "SELECT * FROM prices WHERE resource='Oil'"
-    ).fetchall()
-
-    gold_prices = conn.execute(
-        "SELECT * FROM prices WHERE resource='Gold'"
-    ).fetchall()
-
-    conn.close()
-
-    return render_template(
-        'dashboard.html',
-        news=news,
-        oil_prices=oil_prices,
-        gold_prices=gold_prices
-    )
-
+    return render_template('dashboard.html')
 
 # PROFILE
 @app.route('/profile', methods=['GET', 'POST'])
@@ -513,7 +492,141 @@ def init_db():
 
     conn.close()
 
+@app.route('/api/live-prices')
+def live_prices():
 
+    api_key = "CDAOC9EIUEHHQ8TK"
+
+    oil_url = f"https://www.alphavantage.co/query?function=WTI&interval=daily&apikey={api_key}"
+    gold_url = f"https://www.alphavantage.co/query?function=ALUMINUM&interval=daily&apikey={api_key}"
+
+    try:
+        oil_response = requests.get(oil_url, timeout=10).json()
+        gold_response = requests.get(gold_url, timeout=10).json()
+
+        oil_data = oil_response.get("data", [])[:5]
+        gold_data = gold_response.get("data", [])[:5]
+
+        if not oil_data or not gold_data:
+            raise Exception("API data not available")
+
+        labels = []
+        oil_prices = []
+        gold_prices = []
+
+        for item in reversed(oil_data):
+            labels.append(item["date"])
+            oil_prices.append(float(item["value"]))
+
+        for item in reversed(gold_data):
+            gold_prices.append(float(item["value"]))
+
+        latest_oil = oil_prices[-1]
+        previous_oil = oil_prices[-2]
+
+        latest_gold = gold_prices[-1]
+        previous_gold = gold_prices[-2]
+
+        oil_change = round(latest_oil - previous_oil, 2)
+        gold_change = round(latest_gold - previous_gold, 2)
+
+        if oil_change > 0:
+            oil_prediction = "Oil prices are increasing. Petrol, transport, delivery, and production costs may rise."
+            oil_impact = "Higher crude oil prices can increase daily living costs because many industries depend on fuel."
+            oil_trend = "Increasing"
+        elif oil_change < 0:
+            oil_prediction = "Oil prices are decreasing. Fuel-related cost pressure may reduce."
+            oil_impact = "Lower crude oil prices can reduce transport and logistics costs."
+            oil_trend = "Decreasing"
+        else:
+            oil_prediction = "Oil prices are stable. No major fuel cost movement is expected."
+            oil_impact = "Stable oil prices help businesses and consumers plan expenses better."
+            oil_trend = "Stable"
+
+        if gold_change > 0:
+            gold_prediction = "Gold prices are increasing. Investors may be moving toward safer assets."
+            gold_impact = "Higher gold prices may show rising inflation concerns, uncertainty, or market fear."
+            gold_trend = "Increasing"
+        elif gold_change < 0:
+            gold_prediction = "Gold prices are decreasing. Investors may be moving back to riskier assets."
+            gold_impact = "Lower gold prices may suggest reduced uncertainty or stronger market confidence."
+            gold_trend = "Decreasing"
+        else:
+            gold_prediction = "Gold prices are stable. Market uncertainty may be low."
+            gold_impact = "Stable gold prices suggest balanced investor confidence."
+            gold_trend = "Stable"
+
+        return {
+            "labels": labels,
+            "oil": oil_prices,
+            "gold": gold_prices,
+            "latest_oil": latest_oil,
+            "latest_gold": latest_gold,
+            "oil_change": oil_change,
+            "gold_change": gold_change,
+            "oil_trend": oil_trend,
+            "gold_trend": gold_trend,
+            "oil_prediction": oil_prediction,
+            "gold_prediction": gold_prediction,
+            "oil_impact": oil_impact,
+            "gold_impact": gold_impact,
+            "source": "Alpha Vantage live data"
+        }
+
+    except Exception as e:
+        return {
+            "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+            "oil": [82.5, 84.2, 83.9, 85.4, 86.1],
+            "gold": [2310, 2325, 2330, 2342, 2351],
+            "latest_oil": 86.1,
+            "latest_gold": 2351,
+            "oil_change": 0.7,
+            "gold_change": 9,
+            "oil_trend": "Increasing",
+            "gold_trend": "Increasing",
+            "oil_prediction": "Oil prices are increasing. Petrol, transport, delivery, and production costs may rise.",
+            "gold_prediction": "Gold prices are increasing. Investors may be moving toward safer assets.",
+            "oil_impact": "Higher crude oil prices can increase daily living costs because many industries depend on fuel.",
+            "gold_impact": "Higher gold prices may show rising inflation concerns, uncertainty, or market fear.",
+            "source": "Backup demo data",
+            "note": str(e)
+        }
+@app.route('/gold')
+def gold_page():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    db = get_db()
+
+    gold_news = db.execute(
+        "SELECT * FROM news WHERE LOWER(category) LIKE '%gold%' ORDER BY id DESC"
+    ).fetchall()
+
+    return render_template('gold.html', news=gold_news)
+
+
+@app.route('/oil')
+def oil_page():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    db = get_db()
+
+    oil_news = db.execute(
+        "SELECT * FROM news WHERE LOWER(category) LIKE '%oil%' ORDER BY id DESC"
+    ).fetchall()
+
+    return render_template('oil.html', news=oil_news)  
+
+@app.route('/compare')
+def compare_page():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template('compare.html')
 # RUN APP
 if __name__ == '__main__':
 
