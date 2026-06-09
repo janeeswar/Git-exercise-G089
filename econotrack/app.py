@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+﻿from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import requests
@@ -627,6 +627,207 @@ def compare_page():
         return redirect('/login')
 
     return render_template('compare.html')
+
+#event impact helper function
+
+def analyze_event_text(event_text, severity="Medium"):
+
+    text = event_text.lower()
+
+    event_model = {
+        "War": {
+            "keywords": ["war", "conflict", "attack", "missile", "military", "invasion", "tension", "weapon", "strike"],
+            "weight": 35
+        },
+        "Inflation": {
+            "keywords": ["inflation", "price increase", "cost of living", "interest rate", "expensive", "consumer prices", "rising prices"],
+            "weight": 30
+        },
+        "Climate Issue": {
+            "keywords": ["climate", "flood", "drought", "heatwave", "storm", "crop damage", "natural disaster", "rainfall"],
+            "weight": 28
+        },
+        "Political Instability": {
+            "keywords": ["election", "sanction", "government", "policy", "protest", "instability", "political", "minister"],
+            "weight": 32
+        }
+    }
+
+    commodity_model = {
+        "Oil": {
+            "keywords": ["oil", "crude", "petrol", "fuel", "energy", "supply", "opec", "barrel"],
+            "weight": 18
+        },
+        "Gold": {
+            "keywords": ["gold", "safe haven", "investor", "uncertainty", "market fear", "precious metal"],
+            "weight": 18
+        },
+        "General Economy": {
+            "keywords": ["economy", "business", "trade", "market", "consumer", "currency", "growth", "recession"],
+            "weight": 15
+        }
+    }
+
+    severity_model = {
+        "Low": 10,
+        "Medium": 25,
+        "High": 40
+    }
+
+    event_scores = {}
+    commodity_scores = {}
+    detected_keywords = []
+
+    for event_name, event_data in event_model.items():
+        score = 0
+
+        for keyword in event_data["keywords"]:
+            if keyword in text:
+                score += event_data["weight"]
+                detected_keywords.append(keyword)
+
+        event_scores[event_name] = score
+
+    for commodity_name, commodity_data in commodity_model.items():
+        score = 0
+
+        for keyword in commodity_data["keywords"]:
+            if keyword in text:
+                score += commodity_data["weight"]
+                detected_keywords.append(keyword)
+
+        commodity_scores[commodity_name] = score
+
+    main_event = max(event_scores, key=event_scores.get)
+    main_commodity = max(commodity_scores, key=commodity_scores.get)
+
+    event_score = event_scores[main_event]
+    commodity_score = commodity_scores[main_commodity]
+    severity_score = severity_model[severity]
+
+    if event_score == 0:
+        main_event = "General Economic Event"
+        event_score = 15
+
+    if commodity_score == 0:
+        main_commodity = "General Economy"
+        commodity_score = 10
+
+    impact_score = event_score + commodity_score + severity_score
+
+    if impact_score > 100:
+        impact_score = 100
+
+    risk_levels = [
+        {"min": 80, "level": "Very High"},
+        {"min": 60, "level": "High"},
+        {"min": 40, "level": "Medium"},
+        {"min": 0, "level": "Low"}
+    ]
+
+    risk_level = next(
+        item["level"] for item in risk_levels if impact_score >= item["min"]
+    )
+
+    impact_templates = {
+        "Oil": {
+            "prediction": "This event may affect crude oil and fuel-related costs because the system detected: {keywords}.",
+            "daily_life": "Petrol, transport, delivery fees, and daily goods may become more expensive.",
+            "business": "Businesses may face higher logistics, delivery, production, and operating costs.",
+            "student": "Students may spend more on transport, ride-hailing, and food delivery."
+        },
+        "Gold": {
+            "prediction": "This event may increase demand for gold as a safer asset because the system detected: {keywords}.",
+            "daily_life": "Gold jewellery and investment prices may rise due to market uncertainty.",
+            "business": "Investors may become more cautious and may shift money into safer assets.",
+            "student": "Students may not be directly affected, but family savings and investments may be influenced."
+        },
+        "General Economy": {
+            "prediction": "This event may affect the wider economy because the system detected: {keywords}.",
+            "daily_life": "Households may face higher living costs and lower purchasing power.",
+            "business": "Businesses may face weaker demand, higher costs, or uncertain market conditions.",
+            "student": "Students may face higher food, transport, and daily expenses."
+        }
+    }
+
+    detected_keywords = list(set(detected_keywords))
+
+    if len(detected_keywords) == 0:
+        detected_keyword_text = "general economic uncertainty"
+    else:
+        detected_keyword_text = ", ".join(detected_keywords)
+
+    selected_template = impact_templates[main_commodity]
+
+    prediction = selected_template["prediction"].format(
+        keywords=detected_keyword_text
+    )
+
+    reason = (
+        "The system matched keywords from the article, calculated the event score, "
+        "commodity score, and severity score, then selected the highest scoring result."
+    )
+
+    return {
+        "event_text": event_text,
+        "severity": severity,
+        "main_event": main_event,
+        "main_commodity": main_commodity,
+        "impact_score": impact_score,
+        "risk_level": risk_level,
+        "detected_keywords": detected_keywords,
+        "event_score": event_score,
+        "commodity_score": commodity_score,
+        "severity_score": severity_score,
+        "reason": reason,
+        "prediction": prediction,
+        "daily_life": selected_template["daily_life"],
+        "business": selected_template["business"],
+        "student": selected_template["student"]
+    }
+#event impact analyzer 
+@app.route("/impact", methods=["GET", "POST"])
+def impact_analyzer():
+
+    if "user" not in session:
+        return redirect("/login")
+
+    result = None
+
+    if request.method == "POST":
+
+        event_text = request.form["event_text"]
+        severity = request.form["severity"]
+
+        result = analyze_event_text(event_text, severity)
+
+    return render_template("impact.html", result=result)
+
+#article impact analyzer route 
+@app.route("/analyze_article/<int:id>")
+def analyze_article(id):
+
+    if "user" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+
+    news = conn.execute(
+        "SELECT * FROM news WHERE id=?",
+        (id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not news:
+        return "Article not found"
+
+    article_text = news["title"] + " " + news["content"]
+
+    result = analyze_event_text(article_text, "Medium")
+
+    return render_template("impact.html", result=result)
+
 # RUN APP
 if __name__ == '__main__':
 

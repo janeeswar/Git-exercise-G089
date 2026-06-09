@@ -13,62 +13,78 @@
 <body>
 
     <nav class="navbar navbar-dark bg-dark shadow-sm">
+
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/">📈 ECONOTRACK</a>
+
+            <a class="navbar-brand fw-bold" href="/">
+                📈 ECONOTRACK
+            </a>
 
             <div>
-                <a href="/" class="btn btn-outline-light btn-sm">Home</a>
-                <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
-                <a href="/profile" class="btn btn-outline-light btn-sm">Profile</a>
-                <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+                <a href="/" class="btn btn-outline-light btn-sm">
+                    Home
+                </a>
+
+                <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                    Dashboard
+                </a>
+
+                <a href="/profile" class="btn btn-outline-light btn-sm">
+                    Profile
+                </a>
+
+                <a href="/logout" class="btn btn-danger btn-sm">
+                    Logout
+                </a>
             </div>
+
         </div>
+
     </nav>
+
 
     <div class="container mt-5">
 
         <div class="card shadow-lg border-0">
+
             <div class="card-body p-5">
 
-                <span class="badge bg-primary mb-3">{{ news.category }}</span>
+                <span class="badge bg-primary mb-3">
+                    {{ news.category }}
+                </span>
 
-                <h1 class="fw-bold">{{ news.title }}</h1>
+                <h1 class="fw-bold">
+                    {{ news.title }}
+                </h1>
 
                 <hr>
 
-                <p class="lead text-muted">{{ news.content }}</p>
+                <p class="lead text-muted">
+                    {{ news.content }}
+                </p>
 
-                <hr>
 
-                <div class="card border-0 shadow-sm bg-warning-subtle p-4 mt-4">
-                    <h3 class="fw-bold">🌍 Economic Impact Prediction</h3>
+                <div class="card border-0 shadow-sm p-4 mt-4">
 
-                    {% if news.category|lower == "war" %}
-    <p>War-related events may increase oil prices due to supply disruptions and global uncertainty.</p>
-    <p><strong>Possible impact:</strong> Higher fuel prices, transport costs, and inflation risk.</p>
+                    <h4 class="fw-bold">
+                        📌 EconoTrack Insight
+                    </h4>
 
-{% elif news.category|lower == "gold" %}
-    <p>Gold prices may rise when investors look for safer assets during economic uncertainty.</p>
-    <p><strong>Possible impact:</strong> Increased safe-haven investment and market caution.</p>
+                    <p class="text-muted mb-3">
+                        Analyze this article to estimate its possible impact on commodities, daily life, businesses, and students.
+                    </p>
 
-{% elif news.category|lower == "oil" %}
-    <p>Oil price movements can directly affect fuel, transportation, and delivery costs.</p>
-    <p><strong>Possible impact:</strong> Higher petrol prices and increased business expenses.</p>
+                    <a href="/analyze_article/{{ news.id }}" class="btn btn-primary">
+                        🌍 Analyze Article Impact
+                    </a>
 
-{% elif news.category|lower == "climate" %}
-    <p>Climate-related events may affect agriculture, supply chains, and commodity availability.</p>
-    <p><strong>Possible impact:</strong> Food price increases and resource shortages.</p>
-
-{% elif news.category|lower == "politics" %}
-    <p>Political instability may create market uncertainty and affect investor confidence.</p>
-    <p><strong>Possible impact:</strong> Currency pressure, gold demand, and unstable commodity prices.</p>
-
-{% else %}
-    <p>This event may influence economic confidence, market prices, and daily living costs.</p>
-{% endif %}
                 </div>
 
+
+                <hr>
+
                 <div class="mt-4">
+
                     <a href="/like/{{ news.id }}" class="btn btn-danger me-2">
                         ❤️ Like ({{ likes }})
                     </a>
@@ -80,15 +96,21 @@
                     <a href="/" class="btn btn-secondary">
                         ⬅ Back
                     </a>
+
                 </div>
 
             </div>
+
         </div>
 
+
         <div class="card shadow-sm mt-5 border-0">
+
             <div class="card-body">
 
-                <h3 class="fw-bold mb-4">💬 Comments</h3>
+                <h3 class="fw-bold mb-4">
+                    💬 Comments
+                </h3>
 
                 <form action="/comment/{{ news.id }}" method="POST">
 
@@ -110,14 +132,21 @@
 
                 </form>
 
+
                 <hr class="my-4">
 
+
                 {% for item in comments %}
+
                     <div class="border rounded p-3 mb-3 bg-light">
 
-                        <h5 class="fw-bold">{{ item.username }}</h5>
+                        <h5 class="fw-bold">
+                            {{ item.username }}
+                        </h5>
 
-                        <p>{{ item.comment }}</p>
+                        <p>
+                            {{ item.comment }}
+                        </p>
 
                         <a href="/delete_comment/{{ item.id }}/{{ news.id }}"
                            class="btn btn-sm btn-danger">
@@ -125,9 +154,11 @@
                         </a>
 
                     </div>
+
                 {% endfor %}
 
             </div>
+
         </div>
 
     </div>
