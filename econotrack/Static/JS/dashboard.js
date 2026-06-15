@@ -1,3 +1,4 @@
+
 const oilCtx = document.getElementById('oilChart');
 
 new Chart(oilCtx, {
@@ -25,27 +26,5 @@ new Chart(goldCtx, {
         }]
     }
 });
-// Sample price data
-const oilPrices = [70, 72, 75, 73, 78];
-const goldPrices = [1900, 1950, 1920, 1980, 2000];
-
-// Function to check rising/falling
-function getPerformance(prices) {
-    const first = prices[0];
-    const last = prices[prices.length - 1];
-
-    if (last > first) {
-        return "Rising 📈";
-    } else if (last < first) {
-        return "Falling 📉";
-    } else {
-        return "Stable ➖";
-    }
-}
-
-// Display results
-document.getElementById("oilPerformance").innerText =
-    getPerformance(oilPrices);
-
-document.getElementById("goldPerformance").innerText =
-    getPerformance(goldPrices);
+// Old dashboard sample chart removed.
+// Live charts are now handled inside gold.html, oil.html, and compare.html.

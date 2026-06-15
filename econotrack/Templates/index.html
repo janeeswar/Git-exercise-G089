@@ -1,67 +1,221 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EconoTrack | Global Trends</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+
 </head>
 
-<body class="bg-light">
+<body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
         <div class="container">
-            <a class="navbar-brand" href="#">📈 ECONOTRACK</a>
+
+            <a class="navbar-brand fw-bold" href="/">
+                📈 ECONOTRACK
+            </a>
+
+            <div>
+
+    {% if session.get('user') %}
+
+        <a href="/" class="btn btn-outline-light btn-sm me-2">
+            Home
+        </a>
+
+        <a href="/dashboard" class="btn btn-outline-light btn-sm me-2">
+            Dashboard
+        </a>
+
+        <a href="/profile" class="btn btn-outline-light btn-sm me-2">
+            Profile
+        </a>
+
+        <a href="/bookmarks" class="btn btn-warning btn-sm me-2">
+            🔖 Saved
+        </a>
+
+        <a href="/logout" class="btn btn-danger btn-sm">
+            Logout
+        </a>
+
+    {% else %}
+
+        <a href="/login" class="btn btn-outline-light btn-sm me-2">
+            Login
+        </a>
+
+        <a href="/register" class="btn btn-success btn-sm">
+            Register
+        </a>
+
+    {% endif %}
+
+</div>
+
         </div>
+
     </nav>
+
 
     <!-- HERO SECTION -->
     <div class="container mt-5 text-center">
-        <h1 class="display-4">Welcome to EconoTrack</h1>
-        <p class="lead">
-            Tracking Oil, Gold, and Global Economic Shifts.
+
+        <h1 class="display-3 fw-bold">
+            Welcome to EconoTrack
+        </h1>
+
+        <p class="lead text-muted">
+            Your all-in-one platform for global economic intelligence.
         </p>
 
-        <hr>
+        <hr class="my-4">
 
-        <!-- TEAM SECTION -->
-        <div class="row mt-4">
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Backend</h4>
-                    <p class="text-muted">
-                        Janeeswar: Auth & DB
-                    </p>
+        <!-- PROMO SECTION -->
+        <div class="card shadow-sm border-0 p-4 mt-4 bg-white hero-box">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-2 text-center">
+
+                    <h1 class="display-2">
+                        📊
+                    </h1>
+
                 </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Core System</h4>
-                    <p class="text-muted">
-                        Shamalan: News & CRUD
-                    </p>
-                </div>
-            </div>
+                <div class="col-md-6 text-start">
 
-            <div class="col-md-4">
-                <div class="p-3 border bg-white rounded shadow-sm">
-                    <h4>Frontend/Charts</h4>
-                    <p class="text-muted">
-                        Linghernther: Visuals
+                    <h2 class="fw-bold text-primary">
+                        Track. Analyze. Stay Ahead.
+                    </h2>
+
+                    <p class="lead">
+                        Real-time updates on Oil, Gold, Climate, Politics, and global economic events.
                     </p>
+
+                    <p class="text-muted">
+                        EconoTrack helps users understand market movements and world economic trends in one centralized platform.
+                    </p>
+
                 </div>
+
+                <div class="col-md-4 border-start text-start">
+
+                    <h4 class="text-primary">
+                        Why EconoTrack?
+                    </h4>
+
+                    <ul class="list-group list-group-flush">
+
+                        <li class="list-group-item">
+                            ✅ Live Economic News
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ Categorized Content
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ Search & Filter System
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ User-Friendly Dashboard
+                        </li>
+
+                        <li class="list-group-item">
+                            ✅ Comments & Reactions
+                        </li>
+
+                    </ul>
+
+                </div>
+
             </div>
 
         </div>
+
     </div>
+
+
+    <!-- FEATURES SECTION -->
+    <div class="container mt-5">
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="card shadow-sm border-0 p-4 feature-box bg-white text-center">
+
+                    <h1>📰</h1>
+
+                    <h4 class="fw-bold">
+                        Global News
+                    </h4>
+
+                    <p class="text-muted">
+                        Read live economic news from around the world.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card shadow-sm border-0 p-4 feature-box bg-white text-center">
+
+                    <h1>📈</h1>
+
+                    <h4 class="fw-bold">
+                        Market Trends
+                    </h4>
+
+                    <p class="text-muted">
+                        Monitor Oil and Gold price movements instantly.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card shadow-sm border-0 p-4 feature-box bg-white text-center">
+
+                    <h1>💬</h1>
+
+                    <h4 class="fw-bold">
+                        Community Interaction
+                    </h4>
+
+                    <p class="text-muted">
+                        Like, comment, and save articles easily.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
     <!-- NEWS SECTION -->
     <div class="container mt-5">
@@ -69,85 +223,179 @@
         <!-- SEARCH + FILTER -->
         <form method="GET" class="mb-4">
 
-            <!-- SEARCH BAR -->
-            <input type="text"
-                   name="search"
-                   placeholder="Search news..."
-                   value="{{ search }}"
-                   class="form-control mb-2">
+            <div class="row g-2">
 
-            <!-- CATEGORY FILTER -->
-            <select name="category" class="form-select mb-2">
-                <option value="">All Categories</option>
-                <option value="Oil">Oil</option>
-                <option value="Gold">Gold</option>
-                <option value="Climate">Climate</option>
-                <option value="Politics">Politics</option>
-                <option value="War">War</option>
-            </select>
+                <!-- SEARCH -->
+                <div class="col-md-5">
 
-            <!-- SEARCH BUTTON -->
-            <button type="submit" class="btn btn-success">
-                Search
-            </button>
-
-        </form>
-
-        <!-- ADD NEWS BUTTON -->
-        <a href="/add" class="btn btn-primary mb-4">
-            + Add News
-        </a>
-
-        <!-- NEWS FEED -->
-        <h2 class="mb-4">📰 Economic News Feed</h2>
-
-        {% for category, items in categorized.items() %}
-
-            <h3 class="mt-4 text-primary">
-                {{ category }}
-            </h3>
-
-            <hr>
-
-            {% for item in items %}
-
-                <div class="card mb-3 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            {{ item.title }}
-                        </h5>
-
-                        <p class="card-text">
-                            {{ item.content }}
-                        </p>
-
-                        <!-- BUTTONS -->
-                        <a href="/view/{{ item.id }}"
-                           class="btn btn-info btn-sm">
-                           View
-                        </a>
-
-                        <a href="/edit/{{ item.id }}"
-                           class="btn btn-warning btn-sm">
-                           Edit
-                        </a>
-
-                        <a href="/delete/{{ item.id }}"
-                           class="btn btn-danger btn-sm">
-                           Delete
-                        </a>
-
-                    </div>
+                    <input type="text"
+                           name="search"
+                           placeholder="Search economic news..."
+                           value="{{ search }}"
+                           class="form-control">
 
                 </div>
 
-            {% endfor %}
+                <!-- FILTER -->
+                <div class="col-md-4">
+
+                    <select name="category" class="form-select">
+
+                        <option value="">All Categories</option>
+                        <option value="Oil">Oil</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Climate">Climate</option>
+                        <option value="Politics">Politics</option>
+                        <option value="War">War</option>
+
+                    </select>
+
+                </div>
+
+                <!-- BUTTON -->
+                <div class="col-md-3">
+
+                    <button type="submit"
+                            class="btn btn-success w-100">
+
+                        🔍 Search News
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <!-- ACTION BUTTONS -->
+        <div class="mb-4">
+
+            <a href="/add" class="btn btn-primary me-2">
+                + Add News
+            </a>
+
+            <a href="/" class="btn btn-outline-secondary me-2">
+                Refresh Feed
+            </a>
+
+            <a href="/bookmarks" class="btn btn-warning">
+                🔖 Saved Articles
+            </a>
+
+        </div>
+
+
+        <!-- NEWS FEED -->
+        <h2 class="mb-4 fw-bold">
+            📰 Economic News Feed
+        </h2>
+
+
+        <!-- NO NEWS -->
+        {% if categorized|length == 0 %}
+
+            <div class="alert alert-warning">
+
+                No news articles found.
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- NEWS LOOP -->
+        {% for category, items in categorized.items() %}
+
+            <div class="mt-5">
+
+                <h3 class="text-primary fw-bold">
+                    {{ category }}
+                </h3>
+
+                <hr>
+
+                {% for item in items %}
+
+                    <div class="card mb-4 shadow-sm border-0 news-card">
+
+                        <div class="card-body">
+
+                            <h4 class="card-title fw-bold">
+                                {{ item.title }}
+                            </h4>
+
+                            <p class="card-text text-muted">
+                                {{ item.content[:200] }}...
+                            </p>
+
+                            <span class="badge bg-primary mb-3">
+                                {{ item.category }}
+                            </span>
+
+                            <br>
+
+                            <!-- BUTTONS -->
+                            <a href="/view/{{ item.id }}"
+                               class="btn btn-info btn-sm">
+
+                               View
+
+                            </a>
+
+                            <a href="/edit/{{ item.id }}"
+                               class="btn btn-warning btn-sm">
+
+                               Edit
+
+                            </a>
+
+                            <a href="/delete/{{ item.id }}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this news?')">
+
+                               Delete
+
+                            </a>
+
+                            <a href="/bookmark/{{ item.id }}"
+                               class="btn btn-secondary btn-sm">
+
+                               🔖 Save
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
         {% endfor %}
 
     </div>
 
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white text-center p-4">
+
+        <h4 class="fw-bold">
+            🌍 EconoTrack
+        </h4>
+
+        <p class="mb-1">
+            Real-Time Economic Intelligence Platform
+        </p>
+
+        <small class="text-light">
+            Track global trends. Stay informed. Stay ahead.
+        </small>
+
+    </footer>
+
 </body>
+
 </html>

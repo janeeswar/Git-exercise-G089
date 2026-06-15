@@ -1,208 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>EconoTrack Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commodity Intelligence Hub</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-
-        body{
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1{
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .filters{
-            margin-bottom: 30px;
-        }
-
-        select{
-            padding: 10px;
-            margin-right: 20px;
-            border-radius: 8px;
-            border: none;
-        }
-
-        .comparison-section{
-            margin-top: 40px;
-        }
-
-        .comparison-cards{
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .commodity-card{
-            background: #1f1f1f;
-            padding: 20px;
-            border-radius: 15px;
-            width: 250px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        .oil-card{
-            border-left: 5px solid orange;
-        }
-
-        .gold-card{
-            border-left: 5px solid gold;
-        }
-
-        .commodity-card p{
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .up{
-            color: limegreen;
-            font-weight: bold;
-        }
-
-        .down{
-            color: red;
-            font-weight: bold;
-        }
-
-        ul{
-            background: #1f1f1f;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        canvas{
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 20px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
 <body>
 
-<h1>EconoTrack Dashboard</h1>
+    <nav class="navbar-custom">
 
-<div class="filters">
+        <div class="container d-flex justify-content-between align-items-center">
 
-<label>Timeframe:</label>
+            <a href="/" class="brand">
+                📈 ECONOTRACK
+            </a>
 
-<select>
-<option>1 Week</option>
-<option>1 Month</option>
-<option>6 Months</option>
-</select>
+            <div>
+                <a href="/" class="nav-btn">Home</a>
+                <a href="/profile" class="nav-btn">Profile</a>
+                <a href="/bookmarks" class="nav-btn">Saved</a>
+                <a href="/logout" class="nav-btn">Logout</a>
+            </div>
 
-<label>Resource:</label>
-
-<select>
-<option>Oil</option>
-<option>Gold</option>
-</select>
-
-</div>
-
-<h2>Commodity Comparison</h2>
-
-<canvas id="priceChart"></canvas>
-
-<div class="comparison-section">
-
-    <div class="comparison-cards">
-
-        <div class="commodity-card oil-card">
-            <h3>🛢 Oil</h3>
-            <p>$84.20</p>
-            <span class="up">▲ Rising +2.3%</span>
         </div>
 
-        <div class="commodity-card gold-card">
-            <h3>🥇 Gold</h3>
-            <p>$2310.40</p>
-            <span class="down">▼ Falling -1.2%</span>
+    </nav>
+
+
+    <section class="hero">
+
+        <h1>
+            🌍 Commodity Intelligence Hub
+        </h1>
+
+        <p>
+            Select a section to view live commodity data, market charts, related news, and economic impact predictions.
+        </p>
+
+    </section>
+
+
+    <div class="container">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <div class="hub-card">
+
+                    <div class="icon">
+                        🥇
+                    </div>
+
+                    <h3>
+                        Gold Analysis
+                    </h3>
+
+                    <p>
+                        View gold trends, live chart updates, related news, and safe-haven economic predictions.
+                    </p>
+
+                    <a href="/gold" class="btn-main gold-btn">
+                        Open Gold Analysis
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <div class="hub-card">
+
+                    <div class="icon">
+                        🛢
+                    </div>
+
+                    <h3>
+                        Crude Oil / Fuel Impact
+                    </h3>
+
+                    <p>
+                        View crude oil trends and how it affects petrol, transport, delivery, and daily living costs.
+                    </p>
+
+                    <a href="/oil" class="btn-main oil-btn">
+                        Open Oil Analysis
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <div class="hub-card">
+
+                    <div class="icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        Compare Gold vs Oil
+                    </h3>
+
+                    <p>
+                        Compare gold and oil trends together with economic risk explanations and market insights.
+                    </p>
+
+                    <a href="/compare" class="btn-main compare-btn">
+                        Compare Now
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <div class="hub-card">
+
+                    <div class="icon">
+                        🌍
+                    </div>
+
+                    <h3>
+                        Event Impact Analyzer
+                    </h3>
+
+                    <p>
+                        Analyze war, inflation, climate issues, and political instability using our own impact scoring algorithm.
+                    </p>
+
+                    <a href="/impact" class="btn-main compare-btn">
+                        Open Analyzer
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-</div>
 
-<h2>Latest News</h2>
+    <div class="footer">
 
-<ul>
-{% for item in news %}
-    <li>
-        <strong>{{ item['title'] }}</strong>
-        - {{ item['category'] }}
-    </li>
-{% endfor %}
-</ul>
+        <h4>
+            🌍 EconoTrack
+        </h4>
 
-<h2>Oil Prices</h2>
+        <p>
+            Commodity Intelligence & Economic Impact Prediction Platform
+        </p>
 
-<ul>
-{% for oil in oil_prices %}
-    <li>{{ oil['price'] }}</li>
-{% endfor %}
-</ul>
-
-<h2>Gold Prices</h2>
-
-<ul>
-{% for gold in gold_prices %}
-    <li>{{ gold['price'] }}</li>
-{% endfor %}
-</ul>
-
-<script>
-
-const ctx = document.getElementById('priceChart');
-
-new Chart(ctx, {
-
-    type: 'line',
-
-    data: {
-
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-
-        datasets: [
-
-            {
-                label: 'Oil Prices',
-                data: [82, 84, 83, 85, 84],
-                borderWidth: 3,
-                tension: 0.4
-            },
-
-            {
-                label: 'Gold Prices',
-                data: [2290, 2310, 2325, 2305, 2315],
-                borderWidth: 3,
-                tension: 0.4
-            }
-
-        ]
-    },
-
-    options: {
-        responsive: true
-    }
-
-});
-
-</script>
+    </div>
 
 </body>
+
 </html>
