@@ -3,11 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import requests
 import feedparser
-import os
-
+import os 
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "econotrack_secret")
+
 
 # DATABASE CONNECTION
 def get_db():
@@ -442,17 +442,30 @@ def init_db():
         password TEXT
     )
     ''')
-
     # NEWS
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS news (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        content TEXT,
-        category TEXT
-    )
+        CREATE TABLE IF NOT EXISTS news (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            content TEXT,
+            category TEXT
+        )
     ''')
 
+    try:
+        cursor.execute("ALTER TABLE news ADD COLUMN source_name TEXT")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE news ADD COLUMN source_link TEXT")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE news ADD COLUMN why_matters TEXT")
+    except:
+        pass
     # PRICES
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS prices (
@@ -829,7 +842,88 @@ def analyze_article(id):
     result = analyze_event_text(article_text, "Medium")
 
     return render_template("impact.html", result=result)
+#fetch news 
+@app.route('/fetch_news')
+def fetch_news():
 
+    if 'user' not in session:
+        return redirect('/login')
+
+    feeds = [
+        {
+            "source": "CNBC",
+            "url": "https://www.cnbc.com/id/100727362/device/rss/rss.html"
+        },
+        {
+            "source": "BBC Business",
+            "url": "http://feeds.bbci.co.uk/news/business/rss.xml"
+        }
+    ]
+
+    conn = get_db()
+
+    for feed in feeds:
+
+        parsed_feed = feedparser.parse(feed["url"])
+
+        for entry in parsed_feed.entries[:5]:
+
+            title = entry.get("title", "")
+            summary = entry.get("summary", "")
+            link = entry.get("link", "")
+
+            text = (title + " " + summary).lower()
+
+            category = "Economy"
+
+            if "oil" in text or "fuel" in text or "crude" in text:
+                category = "Oil"
+            elif "gold" in text or "safe haven" in text:
+                category = "Gold"
+            elif "war" in text or "conflict" in text or "attack" in text:
+                category = "War"
+            elif "inflation" in text or "interest rate" in text or "cost of living" in text:
+                category = "Inflation"
+            elif "climate" in text or "flood" in text or "drought" in text:
+                category = "Climate"
+            elif "politic" in text or "election" in text or "government" in text:
+                category = "Politics"
+
+            why_matters = "This article may affect market confidence, commodity prices, or daily living costs."
+
+            if category == "Oil":
+                why_matters = "This article may affect crude oil supply, fuel prices, transport costs, and business expenses."
+            elif category == "Gold":
+                why_matters = "This article may affect gold demand, investor confidence, and safe-haven investment behaviour."
+            elif category == "War":
+                why_matters = "This article may increase uncertainty and affect oil supply, gold demand, and global market stability."
+            elif category == "Inflation":
+                why_matters = "This article may affect consumer prices, purchasing power, interest rates, and cost of living."
+            elif category == "Climate":
+                why_matters = "This article may affect agriculture, supply chains, food prices, and commodity availability."
+            elif category == "Politics":
+                why_matters = "This article may affect investor confidence, policy decisions, currency movement, and market stability."
+
+            existing = conn.execute(
+                "SELECT * FROM news WHERE source_link=?",
+                (link,)
+            ).fetchone()
+
+            if not existing and title and link:
+
+                conn.execute(
+                    '''
+                    INSERT INTO news 
+                    (title, content, category, source_name, source_link, why_matters)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ''',
+                    (title, summary, category, feed["source"], link, why_matters)
+                )
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/')
 # RUN APP
 if __name__ == '__main__':
 
