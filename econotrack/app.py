@@ -2,10 +2,12 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import requests
+import feedparser
+import os
+
 
 app = Flask(__name__)
-app.secret_key = "econotrack_secret"
-
+app.secret_key = os.environ.get("SECRET_KEY", "econotrack_secret")
 
 # DATABASE CONNECTION
 def get_db():
@@ -833,4 +835,4 @@ if __name__ == '__main__':
 
     init_db()
 
-    app.run(debug=True)
+    app.run(debug=False)
