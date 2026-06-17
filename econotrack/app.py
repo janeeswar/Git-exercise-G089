@@ -513,14 +513,16 @@ def live_prices():
     api_key = "CDAOC9EIUEHHQ8TK"
 
     oil_url = f"https://www.alphavantage.co/query?function=WTI&interval=daily&apikey={api_key}"
-    gold_url = f"https://www.alphavantage.co/query?function=ALUMINUM&interval=daily&apikey={api_key}"
+    gold_url = f"https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=XAU&to_symbol=USD&apikey={api_key}"
 
     try:
         oil_response = requests.get(oil_url, timeout=10).json()
         gold_response = requests.get(gold_url, timeout=10).json()
 
         oil_data = oil_response.get("data", [])[:5]
-        gold_data = gold_response.get("data", [])[:5]
+
+        gold_raw_data = gold_response.get("Time Series FX (Daily)", {})
+        gold_data = list(gold_raw_data.items())[:5]
 
         if not oil_data or not gold_data:
             raise Exception("API data not available")
@@ -533,8 +535,8 @@ def live_prices():
             labels.append(item["date"])
             oil_prices.append(float(item["value"]))
 
-        for item in reversed(gold_data):
-            gold_prices.append(float(item["value"]))
+        for date, item in reversed(gold_data):
+            gold_prices.append(float(item["4. close"]))
 
         latest_oil = oil_prices[-1]
         previous_oil = oil_prices[-2]
@@ -545,31 +547,113 @@ def live_prices():
         oil_change = round(latest_oil - previous_oil, 2)
         gold_change = round(latest_gold - previous_gold, 2)
 
+        # OIL IMPACT SCORING
+        oil_percent_change = round((oil_change / previous_oil) * 100, 2)
+
+        oil_average = sum(oil_prices) / len(oil_prices)
+
+        oil_volatility = round(
+            sum(abs(price - oil_average) for price in oil_prices) / len(oil_prices),
+            2
+        )
+
         if oil_change > 0:
-            oil_prediction = "Oil prices are increasing. Petrol, transport, delivery, and production costs may rise."
-            oil_impact = "Higher crude oil prices can increase daily living costs because many industries depend on fuel."
             oil_trend = "Increasing"
         elif oil_change < 0:
-            oil_prediction = "Oil prices are decreasing. Fuel-related cost pressure may reduce."
-            oil_impact = "Lower crude oil prices can reduce transport and logistics costs."
             oil_trend = "Decreasing"
         else:
-            oil_prediction = "Oil prices are stable. No major fuel cost movement is expected."
-            oil_impact = "Stable oil prices help businesses and consumers plan expenses better."
             oil_trend = "Stable"
 
+        oil_impact_score = 0
+        oil_impact_score += abs(oil_percent_change) * 20
+        oil_impact_score += oil_volatility * 2
+
+        if oil_trend == "Increasing":
+            oil_impact_score += 25
+        elif oil_trend == "Decreasing":
+            oil_impact_score += 10
+        else:
+            oil_impact_score += 5
+
+        oil_impact_score = round(oil_impact_score)
+
+        if oil_impact_score > 100:
+            oil_impact_score = 100
+
+        if oil_impact_score >= 80:
+            oil_risk_level = "Very High"
+        elif oil_impact_score >= 60:
+            oil_risk_level = "High"
+        elif oil_impact_score >= 40:
+            oil_risk_level = "Medium"
+        else:
+            oil_risk_level = "Low"
+
+        oil_prediction = (
+            f"Oil is {oil_trend.lower()} by {oil_change} "
+            f"({oil_percent_change}%). The calculated impact score is "
+            f"{oil_impact_score}/100, which shows a {oil_risk_level.lower()} risk level."
+        )
+
+        oil_impact = (
+            f"This result is calculated using price change, percentage movement, "
+            f"recent volatility, and trend direction. Higher oil impact score means "
+            f"fuel, transport, delivery, and business operating costs may be affected more."
+        )
+
+        # GOLD IMPACT SCORING
+        gold_percent_change = round((gold_change / previous_gold) * 100, 2)
+
+        gold_average = sum(gold_prices) / len(gold_prices)
+
+        gold_volatility = round(
+            sum(abs(price - gold_average) for price in gold_prices) / len(gold_prices),
+            2
+        )
+
         if gold_change > 0:
-            gold_prediction = "Gold prices are increasing. Investors may be moving toward safer assets."
-            gold_impact = "Higher gold prices may show rising inflation concerns, uncertainty, or market fear."
             gold_trend = "Increasing"
         elif gold_change < 0:
-            gold_prediction = "Gold prices are decreasing. Investors may be moving back to riskier assets."
-            gold_impact = "Lower gold prices may suggest reduced uncertainty or stronger market confidence."
             gold_trend = "Decreasing"
         else:
-            gold_prediction = "Gold prices are stable. Market uncertainty may be low."
-            gold_impact = "Stable gold prices suggest balanced investor confidence."
             gold_trend = "Stable"
+
+        gold_impact_score = 0
+        gold_impact_score += abs(gold_percent_change) * 20
+        gold_impact_score += gold_volatility * 2
+
+        if gold_trend == "Increasing":
+            gold_impact_score += 25
+        elif gold_trend == "Decreasing":
+            gold_impact_score += 10
+        else:
+            gold_impact_score += 5
+
+        gold_impact_score = round(gold_impact_score)
+
+        if gold_impact_score > 100:
+            gold_impact_score = 100
+
+        if gold_impact_score >= 80:
+            gold_risk_level = "Very High"
+        elif gold_impact_score >= 60:
+            gold_risk_level = "High"
+        elif gold_impact_score >= 40:
+            gold_risk_level = "Medium"
+        else:
+            gold_risk_level = "Low"
+
+        gold_prediction = (
+            f"Gold is {gold_trend.lower()} by {gold_change} "
+            f"({gold_percent_change}%). The calculated impact score is "
+            f"{gold_impact_score}/100, which shows a {gold_risk_level.lower()} risk level."
+        )
+
+        gold_impact = (
+            f"This result is calculated using price change, percentage movement, "
+            f"recent volatility, and trend direction. A higher gold impact score may "
+            f"show stronger investor caution, market uncertainty, or safe-haven demand."
+        )
 
         return {
             "labels": labels,
@@ -585,27 +669,104 @@ def live_prices():
             "gold_prediction": gold_prediction,
             "oil_impact": oil_impact,
             "gold_impact": gold_impact,
+            "oil_percent_change": oil_percent_change,
+            "gold_percent_change": gold_percent_change,
+            "oil_volatility": oil_volatility,
+            "gold_volatility": gold_volatility,
+            "oil_impact_score": oil_impact_score,
+            "gold_impact_score": gold_impact_score,
+            "oil_risk_level": oil_risk_level,
+            "gold_risk_level": gold_risk_level,
             "source": "Alpha Vantage live data"
         }
 
     except Exception as e:
+
+        oil_prices = [82.5, 84.2, 83.9, 85.4, 86.1]
+        gold_prices = [2310, 2325, 2330, 2342, 2351]
+
+        latest_oil = oil_prices[-1]
+        previous_oil = oil_prices[-2]
+
+        latest_gold = gold_prices[-1]
+        previous_gold = gold_prices[-2]
+
+        oil_change = round(latest_oil - previous_oil, 2)
+        gold_change = round(latest_gold - previous_gold, 2)
+
+        oil_percent_change = round((oil_change / previous_oil) * 100, 2)
+        gold_percent_change = round((gold_change / previous_gold) * 100, 2)
+
+        oil_average = sum(oil_prices) / len(oil_prices)
+        gold_average = sum(gold_prices) / len(gold_prices)
+
+        oil_volatility = round(
+            sum(abs(price - oil_average) for price in oil_prices) / len(oil_prices),
+            2
+        )
+
+        gold_volatility = round(
+            sum(abs(price - gold_average) for price in gold_prices) / len(gold_prices),
+            2
+        )
+
+        oil_trend = "Increasing"
+        gold_trend = "Increasing"
+
+        oil_impact_score = 52
+        gold_impact_score = 48
+
+        oil_risk_level = "Medium"
+        gold_risk_level = "Medium"
+
+        oil_prediction = (
+            f"Oil is increasing by {oil_change} ({oil_percent_change}%). "
+            f"The calculated impact score is {oil_impact_score}/100, "
+            f"which shows a medium risk level."
+        )
+
+        gold_prediction = (
+            f"Gold is increasing by {gold_change} ({gold_percent_change}%). "
+            f"The calculated impact score is {gold_impact_score}/100, "
+            f"which shows a medium risk level."
+        )
+
+        oil_impact = (
+            "The system calculated this using demo price movement, percentage change, "
+            "volatility, and trend direction."
+        )
+
+        gold_impact = (
+            "The system calculated this using demo gold price movement, percentage change, "
+            "volatility, and trend direction."
+        )
+
         return {
             "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
-            "oil": [82.5, 84.2, 83.9, 85.4, 86.1],
-            "gold": [2310, 2325, 2330, 2342, 2351],
-            "latest_oil": 86.1,
-            "latest_gold": 2351,
-            "oil_change": 0.7,
-            "gold_change": 9,
-            "oil_trend": "Increasing",
-            "gold_trend": "Increasing",
-            "oil_prediction": "Oil prices are increasing. Petrol, transport, delivery, and production costs may rise.",
-            "gold_prediction": "Gold prices are increasing. Investors may be moving toward safer assets.",
-            "oil_impact": "Higher crude oil prices can increase daily living costs because many industries depend on fuel.",
-            "gold_impact": "Higher gold prices may show rising inflation concerns, uncertainty, or market fear.",
+            "oil": oil_prices,
+            "gold": gold_prices,
+            "latest_oil": latest_oil,
+            "latest_gold": latest_gold,
+            "oil_change": oil_change,
+            "gold_change": gold_change,
+            "oil_trend": oil_trend,
+            "gold_trend": gold_trend,
+            "oil_prediction": oil_prediction,
+            "gold_prediction": gold_prediction,
+            "oil_impact": oil_impact,
+            "gold_impact": gold_impact,
+            "oil_percent_change": oil_percent_change,
+            "gold_percent_change": gold_percent_change,
+            "oil_volatility": oil_volatility,
+            "gold_volatility": gold_volatility,
+            "oil_impact_score": oil_impact_score,
+            "gold_impact_score": gold_impact_score,
+            "oil_risk_level": oil_risk_level,
+            "gold_risk_level": gold_risk_level,
             "source": "Backup demo data",
             "note": str(e)
         }
+    
 @app.route('/gold')
 def gold_page():
 
