@@ -283,10 +283,9 @@ def view(id):
     ).fetchone()
 
     bookmarked = conn.execute(
-        'SELECT * FROM bookmarks WHERE news_id=?',
-        (id,)
+        'SELECT * FROM bookmarks WHERE news_id=? AND user_email=?',
+        (id, session['user'])
     ).fetchone()
-
     conn.close()
 
     return render_template(
@@ -362,30 +361,38 @@ def like(id):
 @app.route('/bookmark/<int:id>')
 def bookmark(id):
 
+    if 'user' not in session:
+        return redirect('/login')
+
     conn = get_db()
 
     existing = conn.execute(
-        'SELECT * FROM bookmarks WHERE news_id=?',
-        (id,)
+        'SELECT * FROM bookmarks WHERE news_id=? AND user_email=?',
+        (id, session['user'])
     ).fetchone()
 
-    if not existing:
-
+    if existing:
         conn.execute(
-            'INSERT INTO bookmarks (news_id) VALUES (?)',
-            (id,)
+            'DELETE FROM bookmarks WHERE news_id=? AND user_email=?',
+            (id, session['user'])
+        )
+    else:
+        conn.execute(
+            'INSERT INTO bookmarks (news_id, user_email) VALUES (?, ?)',
+            (id, session['user'])
         )
 
-        conn.commit()
-
+    conn.commit()
     conn.close()
 
     return redirect(f'/view/{id}')
 
-
 # VIEW SAVED ARTICLES
 @app.route('/bookmarks')
 def bookmarks():
+
+    if 'user' not in session:
+        return redirect('/login')
 
     conn = get_db()
 
@@ -394,7 +401,9 @@ def bookmarks():
         FROM news
         JOIN bookmarks
         ON news.id = bookmarks.news_id
-    ''').fetchall()
+        WHERE bookmarks.user_email=?
+        ORDER BY bookmarks.id DESC
+    ''', (session['user'],)).fetchall()
 
     conn.close()
 
@@ -402,7 +411,6 @@ def bookmarks():
         'bookmarks.html',
         saved=saved
     )
-
 
 # ADD SAMPLE PRICES
 @app.route('/add_prices')
@@ -431,7 +439,6 @@ def add_prices():
 def init_db():
 
     conn = sqlite3.connect('database.db')
-
     cursor = conn.cursor()
 
     # USERS
@@ -442,14 +449,15 @@ def init_db():
         password TEXT
     )
     ''')
+
     # NEWS
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS news (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            content TEXT,
-            category TEXT
-        )
+    CREATE TABLE IF NOT EXISTS news (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        content TEXT,
+        category TEXT
+    )
     ''')
 
     try:
@@ -466,6 +474,7 @@ def init_db():
         cursor.execute("ALTER TABLE news ADD COLUMN why_matters TEXT")
     except:
         pass
+
     # PRICES
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS prices (
@@ -499,13 +508,55 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS bookmarks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        news_id INTEGER
+        news_id INTEGER,
+        user_email TEXT
+    )
+    ''')
+
+    try:
+        cursor.execute("ALTER TABLE bookmarks ADD COLUMN user_email TEXT")
+    except:
+        pass
+
+    # PRICE ALERTS
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_email TEXT,
+        commodity TEXT,
+        condition TEXT,
+        target_price REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
 
     conn.commit()
+    conn.close()z
+    # BOOKMARK
+ @app.route('/bookmarks')
+def bookmarks():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+
+    saved = conn.execute('''
+        SELECT news.*
+        FROM news
+        JOIN bookmarks
+        ON news.id = bookmarks.news_id
+        WHERE bookmarks.user_email=?
+        ORDER BY bookmarks.id DESC
+    ''', (session['user'],)).fetchall()
 
     conn.close()
+
+    return render_template(
+        'bookmarks.html',
+        saved=saved
+    )
+   
 
 @app.route('/api/live-prices')
 def live_prices():
@@ -1067,6 +1118,67 @@ def budget_calculator():
         }
 
     return render_template('budget.html', result=result)
+
+# PRICE ALERTS
+@app.route('/alerts', methods=['GET', 'POST'])
+def alerts():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+
+    if request.method == 'POST':
+
+        commodity = request.form['commodity']
+        condition = request.form['condition']
+        target_price = request.form['target_price']
+
+        conn.execute(
+            '''
+            INSERT INTO alerts (user_email, commodity, condition, target_price)
+            VALUES (?, ?, ?, ?)
+            ''',
+            (session['user'], commodity, condition, target_price)
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        return redirect('/alerts')
+
+    user_alerts = conn.execute(
+        '''
+        SELECT * FROM alerts
+        WHERE user_email=?
+        ORDER BY id DESC
+        ''',
+        (session['user'],)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template('alerts.html', alerts=user_alerts)
+
+
+@app.route('/delete_alert/<int:id>')
+def delete_alert(id):
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+
+    conn.execute(
+        'DELETE FROM alerts WHERE id=? AND user_email=?',
+        (id, session['user'])
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/alerts')
 
 # RUN APP
 init_db()
