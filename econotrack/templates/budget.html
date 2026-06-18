@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Budget Impact Calculator</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+    <a href="/" class="navbar-brand fw-bold">📈 EconoTrack</a>
+
+    <div>
+        <a href="/" class="btn btn-outline-light btn-sm">Home</a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold text-center">
+        🎓 Student Budget Impact Calculator
+    </h1>
+
+    <p class="text-muted text-center">
+        Estimate how oil price changes can affect your monthly student spending.
+    </p>
+
+    <div class="card shadow-sm border-0 p-4 mt-4">
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label class="form-label">Monthly fuel spending (RM)</label>
+                <input type="number" step="0.01" name="fuel_spending" class="form-control" placeholder="Example: 300" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Monthly transport spending (RM)</label>
+                <input type="number" step="0.01" name="transport_spending" class="form-control" placeholder="Example: 150" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Monthly food delivery spending (RM)</label>
+                <input type="number" step="0.01" name="food_delivery_spending" class="form-control" placeholder="Example: 100" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Oil price increase (%)</label>
+                <input type="number" step="0.01" name="oil_change_percent" class="form-control" placeholder="Example: 5" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                Calculate Impact
+            </button>
+
+        </form>
+
+    </div>
+
+    {% if result %}
+
+    <div class="card shadow-sm border-0 p-4 mt-4">
+
+        <h3 class="fw-bold">
+            📊 Estimated Monthly Impact
+        </h3>
+
+        <p>
+            Oil price increase:
+            <strong>{{ result.oil_change_percent }}%</strong>
+        </p>
+
+        <ul class="list-group mb-3">
+
+            <li class="list-group-item">
+                Fuel extra cost: <strong>RM{{ result.fuel_extra }}</strong>
+            </li>
+
+            <li class="list-group-item">
+                Transport extra cost: <strong>RM{{ result.transport_extra }}</strong>
+            </li>
+
+            <li class="list-group-item">
+                Food delivery extra cost: <strong>RM{{ result.delivery_extra }}</strong>
+            </li>
+
+        </ul>
+
+        <p>
+            Current monthly spending:
+            <strong>RM{{ result.current_total }}</strong>
+        </p>
+
+        <p>
+            Estimated new monthly spending:
+            <strong>RM{{ result.new_total }}</strong>
+        </p>
+
+        <p>
+            Total extra monthly cost:
+            <strong class="text-danger">RM{{ result.total_extra }}</strong>
+        </p>
+
+        <p>
+            Risk level:
+            <span class="badge bg-primary">{{ result.risk_level }}</span>
+        </p>
+
+        <div class="alert alert-info">
+            {{ result.advice }}
+        </div>
+
+        <div class="alert alert-secondary">
+            Formula used:
+            Extra cost = Monthly spending × Oil increase percentage
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

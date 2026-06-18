@@ -692,7 +692,7 @@ def live_prices():
         "oil_note": oil_note,
         "gold_note": gold_note
     }
-
+    
 @app.route('/gold')
 def gold_page():
 
@@ -1011,6 +1011,63 @@ def fetch_news():
     conn.close()
 
     return redirect('/')
+
+#student budget impact calculator
+@app.route('/budget', methods=['GET', 'POST'])
+def budget_calculator():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    result = None
+
+    if request.method == 'POST':
+
+        fuel_spending = float(request.form['fuel_spending'])
+        transport_spending = float(request.form['transport_spending'])
+        food_delivery_spending = float(request.form['food_delivery_spending'])
+        oil_change_percent = float(request.form['oil_change_percent'])
+
+        fuel_extra = round(fuel_spending * oil_change_percent / 100, 2)
+        transport_extra = round(transport_spending * (oil_change_percent * 0.6) / 100, 2)
+        delivery_extra = round(food_delivery_spending * (oil_change_percent * 0.4) / 100, 2)
+
+        total_extra = round(fuel_extra + transport_extra + delivery_extra, 2)
+
+        current_total = round(
+            fuel_spending + transport_spending + food_delivery_spending,
+            2
+        )
+
+        new_total = round(current_total + total_extra, 2)
+
+        if total_extra >= 50:
+            risk_level = "High"
+            advice = "Try reducing fuel use, carpooling, or limiting delivery orders."
+        elif total_extra >= 20:
+            risk_level = "Medium"
+            advice = "Your spending may increase slightly. Plan your weekly transport and food delivery carefully."
+        else:
+            risk_level = "Low"
+            advice = "The increase is small, but it is still good to track your monthly spending."
+
+        result = {
+            "fuel_spending": fuel_spending,
+            "transport_spending": transport_spending,
+            "food_delivery_spending": food_delivery_spending,
+            "oil_change_percent": oil_change_percent,
+            "fuel_extra": fuel_extra,
+            "transport_extra": transport_extra,
+            "delivery_extra": delivery_extra,
+            "total_extra": total_extra,
+            "current_total": current_total,
+            "new_total": new_total,
+            "risk_level": risk_level,
+            "advice": advice
+        }
+
+    return render_template('budget.html', result=result)
+
 # RUN APP
 init_db()
 
