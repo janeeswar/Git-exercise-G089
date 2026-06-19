@@ -387,31 +387,6 @@ def bookmark(id):
 
     return redirect(f'/view/{id}')
 
-# VIEW SAVED ARTICLES
-@app.route('/bookmarks')
-def bookmarks():
-
-    if 'user' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-
-    saved = conn.execute('''
-        SELECT news.*
-        FROM news
-        JOIN bookmarks
-        ON news.id = bookmarks.news_id
-        WHERE bookmarks.user_email=?
-        ORDER BY bookmarks.id DESC
-    ''', (session['user'],)).fetchall()
-
-    conn.close()
-
-    return render_template(
-        'bookmarks.html',
-        saved=saved
-    )
-
 # ADD SAMPLE PRICES
 @app.route('/add_prices')
 def add_prices():
@@ -531,9 +506,9 @@ def init_db():
     ''')
 
     conn.commit()
-    conn.close()z
+    conn.close()
     # BOOKMARK
- @app.route('/bookmarks')
+@app.route('/bookmarks')
 def bookmarks():
 
     if 'user' not in session:
