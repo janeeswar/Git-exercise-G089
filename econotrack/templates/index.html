@@ -270,18 +270,34 @@
 
 
         <!-- ACTION BUTTONS -->
-        <div class="mb-4">
+        <!-- ACTION BUTTONS -->
+<div class="mb-4">
 
-            <a href="/add" class="btn btn-primary me-2">
-                + Add News
-            </a>
+    <a href="/add" class="btn btn-primary me-2">
+        + Add News
+    </a>
 
-            <a href="/" class="btn btn-outline-secondary me-2">
-                Refresh Feed
-            </a>
+    <a href="/fetch_news" class="btn btn-success me-2">
+        🔄 Fetch Latest News
+    </a>
 
-         </div>
+    <a href="/budget" class="btn btn-dark me-2">
+        🎓 Student Budget Calculator
+    </a>
 
+    <a href="/alerts" class="btn btn-danger me-2">
+        🔔 Price Alerts
+    </a>
+
+    <a href="/impact" class="btn btn-info me-2">
+        🌍 Event Impact Calculator
+    </a>
+
+    <a href="/bookmarks" class="btn btn-warning">
+        🔖 Saved Articles
+    </a>
+
+</div>
 
         <!-- NEWS FEED -->
         <h2 class="mb-4 fw-bold">
@@ -292,14 +308,19 @@
         <!-- NO NEWS -->
         {% if categorized|length == 0 %}
 
-            <div class="alert alert-warning">
+    <div class="alert alert-warning">
 
-                No news articles found.
+        No news articles found. Click below to fetch the latest economic news.
 
-            </div>
+        <br><br>
 
-        {% endif %}
+        <a href="/fetch_news" class="btn btn-success btn-sm">
+            🔄 Fetch Latest News
+        </a>
 
+    </div>
+
+{% endif %}
 
         <!-- NEWS LOOP -->
         {% for category, items in categorized.items() %}
