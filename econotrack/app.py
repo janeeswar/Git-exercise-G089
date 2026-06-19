@@ -265,6 +265,9 @@ def delete(id):
 @app.route('/view/<int:id>')
 def view(id):
 
+    if 'user' not in session:
+        return redirect('/login')
+
     conn = get_db()
 
     news = conn.execute(
@@ -386,29 +389,6 @@ def bookmark(id):
     conn.close()
 
     return redirect(f'/view/{id}')
-
-# ADD SAMPLE PRICES
-@app.route('/add_prices')
-def add_prices():
-
-    conn = get_db()
-
-    conn.execute(
-        "INSERT INTO prices (resource, price) VALUES (?, ?)",
-        ("Oil", 82.5)
-    )
-
-    conn.execute(
-        "INSERT INTO prices (resource, price) VALUES (?, ?)",
-        ("Gold", 2310.4)
-    )
-
-    conn.commit()
-
-    conn.close()
-
-    return "Prices Added Successfully"
-
 
 # CREATE DATABASE
 def init_db():
@@ -955,6 +935,54 @@ def analyze_article(id):
     result = analyze_event_text(article_text, "Medium")
 
     return render_template("impact.html", result=result)
+
+# NEWS PAGE
+@app.route('/news')
+def news_page():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+
+    search = request.args.get('search', '')
+    category = request.args.get('category', '')
+
+    query = "SELECT * FROM news WHERE 1=1"
+    params = []
+
+    if search:
+        query += " AND (title LIKE ? OR content LIKE ?)"
+        params.append(f"%{search}%")
+        params.append(f"%{search}%")
+
+    if category:
+        query += " AND category=?"
+        params.append(category)
+
+    query += " ORDER BY id DESC"
+
+    news = conn.execute(query, params).fetchall()
+
+    categorized = {}
+
+    for item in news:
+        cat = item['category']
+
+        if cat not in categorized:
+            categorized[cat] = []
+
+        categorized[cat].append(item)
+
+    conn.close()
+
+    return render_template(
+        'news.html',
+        categorized=categorized,
+        search=search,
+        category=category
+    )
+
 #fetch news 
 @app.route('/fetch_news')
 def fetch_news():
@@ -1036,7 +1064,7 @@ def fetch_news():
     conn.commit()
     conn.close()
 
-    return redirect('/')
+    return redirect('/news')
 
 #student budget impact calculator
 @app.route('/budget', methods=['GET', 'POST'])
