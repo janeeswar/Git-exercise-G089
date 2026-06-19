@@ -991,23 +991,30 @@ def fetch_news():
         return redirect('/login')
 
     feeds = [
-        {
-            "source": "CNBC",
-            "url": "https://www.cnbc.com/id/100727362/device/rss/rss.html"
-        },
-        {
-            "source": "BBC Business",
-            "url": "http://feeds.bbci.co.uk/news/business/rss.xml"
-        }
-    ]
-
+    {
+        "source": "CNBC",
+        "url": "https://www.cnbc.com/id/100727362/device/rss/rss.html"
+    },
+    {
+        "source": "BBC Business",
+        "url": "http://feeds.bbci.co.uk/news/business/rss.xml"
+    },
+    {
+        "source": "Yahoo Finance",
+        "url": "https://finance.yahoo.com/news/rssindex"
+    },
+    {
+        "source": "Investing.com",
+        "url": "https://www.investing.com/rss/news.rss"
+    }
+]
     conn = get_db()
 
     for feed in feeds:
 
         parsed_feed = feedparser.parse(feed["url"])
 
-        for entry in parsed_feed.entries[:5]:
+        for entry in parsed_feed.entries[:20]:
 
             title = entry.get("title", "")
             summary = entry.get("summary", "")
