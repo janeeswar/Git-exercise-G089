@@ -15,19 +15,41 @@
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark p-3">
-    <a href="/dashboard" class="btn btn-light btn-sm">Back to Dashboard</a>
+<nav class="navbar-custom">
+
+    <div class="container d-flex justify-content-between align-items-center">
+
+        <a href="/" class="brand">
+            📈 ECONOTRACK
+        </a>
+
+        <div>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/gold" class="nav-btn">Gold</a>
+            <a href="/compare" class="nav-btn">Compare</a>
+            <a href="/impact" class="nav-btn">Impact</a>
+            <a href="/logout" class="nav-btn">Logout</a>
+        </div>
+
+    </div>
+
 </nav>
+
+<section class="hero">
+
+    <h1>
+        🛢 Crude Oil / Fuel Impact Analysis
+    </h1>
+
+    <p>
+        View live crude oil trends, petrol impact, economic predictions, and related oil news.
+    </p>
+
+</section>
 
 <div class="container mt-5">
 
-    <h1 class="fw-bold">🛢 Crude Oil / Fuel Impact Analysis</h1>
-
-    <p class="text-muted">
-        Live crude oil trend, petrol impact, economic prediction, and related oil news in one place.
-    </p>
-
-    <div class="card p-4 shadow-sm mt-4">
+   <div class="hub-card mt-4">
 
         <h3 class="fw-bold">Live Crude Oil Price Trend</h3>
 
@@ -39,7 +61,7 @@
 
     </div>
 
-    <div class="card p-4 shadow-sm mt-4">
+    <div class="hub-card mt-4">
 
         <h3>Live Oil Trend</h3>
 
@@ -51,7 +73,7 @@
 
     </div>
 
-    <div class="card p-4 shadow-sm mt-4">
+    <div class="hub-card mt-4">
 
         <h3>Live Economic Impact</h3>
 
@@ -61,7 +83,7 @@
 
     </div>
 
-    <div class="card p-4 shadow-sm mt-4">
+    <div class="hub-card mt-4">
 
         <h3>Oil Economic Explanation</h3>
 
@@ -76,7 +98,7 @@
 
     {% for item in news %}
 
-        <div class="card p-3 shadow-sm mt-3">
+        <div class="hub-card mt-3">
 
             <h5>{{ item['title'] }}</h5>
 
@@ -97,6 +119,18 @@
         </p>
 
     {% endfor %}
+
+</div>
+
+<div class="footer">
+
+    <h4>
+        🌍 EconoTrack
+    </h4>
+
+    <p>
+        Commodity Intelligence & Economic Impact Prediction Platform
+    </p>
 
 </div>
 

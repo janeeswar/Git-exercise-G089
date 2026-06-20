@@ -15,7 +15,6 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-
 # HOME PAGE
 @app.route('/')
 def index():
@@ -23,47 +22,7 @@ def index():
     if 'user' not in session:
         return redirect('/login')
 
-    conn = get_db()
-
-    search = request.args.get('search', '')
-    category = request.args.get('category', '')
-
-    query = "SELECT * FROM news WHERE 1=1"
-    params = []
-
-    # SEARCH
-    if search:
-        query += " AND (title LIKE ? OR content LIKE ?)"
-        params.append(f"%{search}%")
-        params.append(f"%{search}%")
-
-    # FILTER
-    if category:
-        query += " AND category=?"
-        params.append(category)
-
-    news = conn.execute(query, params).fetchall()
-
-    categorized = {}
-
-    for item in news:
-
-        cat = item['category']
-
-        if cat not in categorized:
-            categorized[cat] = []
-
-        categorized[cat].append(item)
-
-    conn.close()
-
-    return render_template(
-        'index.html',
-        categorized=categorized,
-        search=search,
-        category=category
-    )
-
+    return render_template('index.html')
 
 # REGISTER
 @app.route('/register', methods=['GET', 'POST'])
@@ -186,6 +145,9 @@ def profile():
 @app.route('/add', methods=['GET', 'POST'])
 def add():
 
+    if 'user' not in session:
+        return redirect('/login')
+
     if request.method == 'POST':
 
         title = request.form['title']
@@ -213,6 +175,9 @@ def add():
 # EDIT NEWS
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
+
+    if 'user' not in session:
+        return redirect('/login')
 
     conn = get_db()
 
@@ -246,6 +211,9 @@ def edit(id):
 # DELETE NEWS
 @app.route('/delete/<int:id>')
 def delete(id):
+
+    if 'user' not in session:
+        return redirect('/login')
 
     conn = get_db()
 
@@ -304,6 +272,9 @@ def view(id):
 @app.route('/comment/<int:id>', methods=['POST'])
 def comment(id):
 
+    if 'user' not in session:
+        return redirect('/login')
+
     username = request.form['username']
     comment = request.form['comment']
 
@@ -345,6 +316,9 @@ def delete_comment(id, news_id):
 # LIKE SYSTEM
 @app.route('/like/<int:id>')
 def like(id):
+
+    if 'user' not in session:
+        return redirect('/login')
 
     conn = get_db()
 

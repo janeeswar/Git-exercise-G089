@@ -16,17 +16,39 @@
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark p-3">
-    <a href="/dashboard" class="btn btn-light btn-sm">Back to Dashboard</a>
+<nav class="navbar-custom">
+
+    <div class="container d-flex justify-content-between align-items-center">
+
+        <a href="/" class="brand">
+            📈 ECONOTRACK
+        </a>
+
+        <div>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/gold" class="nav-btn">Gold</a>
+            <a href="/oil" class="nav-btn">Oil</a>
+            <a href="/impact" class="nav-btn">Impact</a>
+            <a href="/logout" class="nav-btn">Logout</a>
+        </div>
+
+    </div>
+
 </nav>
 
-<div class="container mt-5">
+<section class="hero">
 
-    <h1 class="fw-bold">📊 Gold vs Oil Comparison</h1>
+    <h1>
+        📊 Gold vs Oil Comparison
+    </h1>
 
-    <p class="text-muted">
+    <p>
         Compare live gold and crude oil trends with automatic economic impact prediction.
     </p>
+
+</section>
+
+<div class="container mt-5">
 
     <p class="text-muted">
         Last updated: <span id="lastUpdated">Loading...</span>
@@ -35,7 +57,7 @@
     <div class="row g-4 mt-3">
 
         <div class="col-md-6">
-            <div class="card stat-box shadow-sm p-4">
+           <div class="hub-card h-100">
                 <h4>🥇 Gold Trend</h4>
                 <h2 id="goldTrend">Loading...</h2>
                 <p id="goldPrediction" class="text-muted">Loading prediction...</p>
@@ -43,7 +65,7 @@
         </div>
 
         <div class="col-md-6">
-            <div class="card stat-box shadow-sm p-4">
+            <div class="hub-card h-100">
                 <h4>🛢 Oil Trend</h4>
                 <h2 id="oilTrend">Loading...</h2>
                 <p id="oilPrediction" class="text-muted">Loading prediction...</p>
@@ -52,7 +74,7 @@
 
     </div>
 
-    <div class="card shadow-sm p-4 mt-5">
+    <div class="hub-card mt-5">
 
         <h3 class="fw-bold">Live Commodity Comparison Chart</h3>
 
@@ -60,7 +82,7 @@
 
     </div>
 
-    <div class="card shadow-sm p-4 mt-5">
+    <div class="hub-card mt-5">
 
         <h3 class="fw-bold">Economic Risk Explanation</h3>
 
@@ -69,6 +91,18 @@
         </p>
 
     </div>
+
+</div>
+
+<div class="footer">
+
+    <h4>
+        🌍 EconoTrack
+    </h4>
+
+    <p>
+        Commodity Intelligence & Economic Impact Prediction Platform
+    </p>
 
 </div>
 

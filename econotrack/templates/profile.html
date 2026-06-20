@@ -13,29 +13,42 @@
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark p-3">
+<nav class="navbar-custom">
 
-    <div>
-        <a href="/" class="btn btn-light btn-sm me-2">Home</a>
-        <a href="/dashboard" class="btn btn-warning btn-sm me-2">Dashboard</a>
-        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    <div class="container d-flex justify-content-between align-items-center">
+
+        <a href="/" class="brand">
+            📈 ECONOTRACK
+        </a>
+
+        <div>
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/news" class="nav-btn">News</a>
+            <a href="/logout" class="nav-btn">Logout</a>
+        </div>
+
     </div>
 
 </nav>
 
+<section class="hero">
+
+    <h1>
+        👤 My Profile
+    </h1>
+
+    <p>
+        Manage your EconoTrack account details.
+    </p>
+
+</section>
+
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
 
-    <div class="card shadow-sm p-5" style="width: 450px;">
+   <div class="hub-card" style="width: 450px;">
 
         <div class="text-center mb-4">
-
-            <h1 class="fw-bold">
-                👤 My Profile
-            </h1>
-
-            <p class="text-muted">
-                Manage your EconoTrack account details.
-            </p>
 
         </div>
 
@@ -60,6 +73,18 @@
         </form>
 
     </div>
+
+</div>
+
+<div class="footer">
+
+    <h4>
+        🌍 EconoTrack
+    </h4>
+
+    <p>
+        Commodity Intelligence & Economic Impact Prediction Platform
+    </p>
 
 </div>
 
