@@ -11,27 +11,40 @@
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark p-3">
-    <a href="/" class="navbar-brand fw-bold">📈 EconoTrack</a>
+<nav class="navbar-custom">
 
-    <div>
-        <a href="/" class="btn btn-outline-light btn-sm me-2">Home</a>
-        <a href="/dashboard" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
-        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    <div class="container d-flex justify-content-between align-items-center">
+
+        <a href="/" class="brand">
+            📈 ECONOTRACK
+        </a>
+
+        <div>
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/news" class="nav-btn">News</a>
+            <a href="/logout" class="nav-btn">Logout</a>
+        </div>
+
     </div>
+
 </nav>
+
+<section class="hero">
+
+    <h1>
+        🔔 Price Alerts
+    </h1>
+
+    <p>
+        Create simple alerts for oil and gold price movements based on your target price.
+    </p>
+
+</section>
 
 <div class="container mt-5">
 
-    <h1 class="fw-bold mb-3">
-        🔔 Price Alert System
-    </h1>
-
-    <p class="text-muted">
-        Create simple alerts for oil or gold price movements.
-    </p>
-
-    <div class="card shadow-sm border-0 p-4 mb-4">
+   <div class="hub-card mb-4">
 
         <form method="POST">
 
@@ -76,31 +89,38 @@
 
     {% else %}
 
-        {% for alert in alerts %}
+    {% for alert in alerts %}
 
-            <div class="card shadow-sm border-0 mb-3">
+         <div class="hub-card mb-3">
 
-                <div class="card-body">
+            <h5 class="fw-bold">
+                    {{ alert.commodity }} {{ alert.condition }} {{ alert.target_price }}
+            </h5>
 
-                    <h5 class="fw-bold">
-                        {{ alert.commodity }} {{ alert.condition }} {{ alert.target_price }}
-                    </h5>
+        <a href="/delete_alert/{{ alert.id }}" class="btn btn-danger btn-sm">
+            Delete
+        </a>
 
-                    <p class="text-muted mb-2">
-                        This alert belongs to {{ alert.user_email }}.
-                    </p>
+    </div>
 
-                    <a href="/delete_alert/{{ alert.id }}" class="btn btn-danger btn-sm">
-                        Delete
-                    </a>
+{% endfor %}
 
-                </div>
-
-            </div>
 
         {% endfor %}
 
     {% endif %}
+
+</div>
+
+<div class="footer">
+
+    <h4>
+        🌍 EconoTrack
+    </h4>
+
+    <p>
+        Commodity Intelligence & Economic Impact Prediction Platform
+    </p>
 
 </div>
 
