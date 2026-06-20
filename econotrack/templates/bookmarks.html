@@ -2,62 +2,124 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Articles</title>
+    <title>Saved Articles | EconoTrack</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="container mt-5">
+    <nav class="navbar-custom">
 
-        <h1 class="fw-bold mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <a href="/" class="brand">
+                📈 ECONOTRACK
+            </a>
+
+            <div>
+                <a href="/" class="nav-btn">Home</a>
+                <a href="/dashboard" class="nav-btn">Dashboard</a>
+                <a href="/news" class="nav-btn">News</a>
+                <a href="/logout" class="nav-btn">Logout</a>
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <section class="hero">
+
+        <h1>
             🔖 Saved Articles
         </h1>
 
-        {% for item in saved %}
+        <p>
+            Articles you saved from the economic news feed will appear here.
+        </p>
 
-            <div class="card shadow-sm mb-3">
+    </section>
 
-                <div class="card-body">
+
+    <div class="container mt-4 mb-5">
+
+        {% if saved|length == 0 %}
+
+            <div class="hub-card text-center">
+
+                <div class="icon">
+                    📰
+                </div>
+
+                <h3>
+                    No Saved Articles Yet
+                </h3>
+
+                <p>
+                    Go to the Economic News Feed and click Save on any article you want to keep.
+                </p>
+
+                <a href="/news" class="btn-main compare-btn">
+                    Open News Feed
+                </a>
+
+            </div>
+
+        {% else %}
+
+            {% for item in saved %}
+
+                <div class="hub-card mb-4">
 
                     <h3>
                         {{ item.title }}
                     </h3>
 
-                    <p class="text-muted">
-                        {{ item.content }}
-                    </p>
-
-                    <span class="badge bg-primary">
+                    <span class="badge bg-primary mb-3">
                         {{ item.category }}
                     </span>
 
-                    <br><br>
+                    <p>
+                        {{ item.content[:250] }}...
+                    </p>
 
-                    <a href="/view/{{ item.id }}"
-                       class="btn btn-primary">
-
+                    <a href="/view/{{ item.id }}" class="btn-main compare-btn">
                         View Article
+                    </a>
 
+                    <a href="/bookmark/{{ item.id }}" class="btn btn-danger ms-2">
+                        Remove Saved
                     </a>
 
                 </div>
 
-            </div>
+            {% endfor %}
 
-        {% endfor %}
+        {% endif %}
 
-        <a href="/"
-           class="btn btn-secondary mt-3">
-
-           ⬅ Back Home
-
+        <a href="/dashboard" class="btn btn-secondary mt-3">
+            ← Back Dashboard
         </a>
+
+    </div>
+
+
+    <div class="footer">
+
+        <h4>
+            🌍 EconoTrack
+        </h4>
+
+        <p>
+            Commodity Intelligence & Economic Impact Prediction Platform
+        </p>
 
     </div>
 
