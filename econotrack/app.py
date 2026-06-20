@@ -447,7 +447,7 @@ def init_db():
     except:
         pass
 
-    # PRICE ALERTS
+        # PRICE ALERTS
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS alerts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -459,8 +459,34 @@ def init_db():
     )
     ''')
 
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN user_email TEXT")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN commodity TEXT")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN condition TEXT")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN target_price REAL")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN created_at TIMESTAMP")
+    except:
+        pass
+
     conn.commit()
     conn.close()
+    
     # BOOKMARK
 @app.route('/bookmarks')
 def bookmarks():
