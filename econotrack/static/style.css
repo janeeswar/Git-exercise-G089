@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --warm-white: #F4F1EA;
     --light-wood: #C8B89D;
     --wood-tone: #8A6A45;
@@ -99,7 +99,6 @@ body {
 
 .hub-card p {
     color: #6f6252;
-    min-height: 80px;
 }
 
 /* BUTTONS */
@@ -163,6 +162,9 @@ h1, h2, h3, h4, h5 {
 footer {
     background-color: var(--black-accent);
     color: var(--warm-light);
+    text-align: center;
+    padding: 30px;
+    margin-top: 60px;
 }
 
 .footer h4,
