@@ -63,9 +63,8 @@
                 <input type="number" step="0.01" name="food_delivery_spending" class="form-control" placeholder="Example: 100" required>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Oil price increase (%)</label>
-                <input type="number" step="0.01" name="oil_change_percent" class="form-control" placeholder="Example: 5" required>
+           <div class="alert alert-info">
+                Oil price change is automatically calculated using live crude oil futures data.
             </div>
 
             <button type="submit" class="btn btn-success w-100">
@@ -85,7 +84,7 @@
         </h3>
 
         <p>
-            Oil price increase:
+            Live oil price change:
             <strong>{{ result.oil_change_percent }}%</strong>
         </p>
 
@@ -130,8 +129,8 @@
         </div>
 
         <div class="alert alert-secondary">
-            Formula used:
-            Extra cost = Monthly spending × Oil increase percentage
+             Formula used:
+             Estimated impact = Monthly spending × Live oil price change percentage
         </div>
 
     </div>

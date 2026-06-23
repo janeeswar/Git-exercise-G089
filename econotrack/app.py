@@ -486,7 +486,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    
+
     # BOOKMARK
 @app.route('/bookmarks')
 def bookmarks():
@@ -1073,6 +1073,38 @@ def fetch_news():
 
     return redirect('/news')
 
+# LIVE OIL PRICE CHANGE HELPER
+def get_live_oil_change_percent():
+
+    oil_url = "https://query1.finance.yahoo.com/v8/finance/chart/CL=F?range=5d&interval=1d"
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+
+        response = requests.get(oil_url, headers=headers, timeout=10).json()
+
+        result = response["chart"]["result"][0]
+        close_prices = result["indicators"]["quote"][0]["close"]
+
+        prices = []
+
+        for price in close_prices:
+            if price is not None:
+                prices.append(float(price))
+
+        if len(prices) < 2:
+            return 0
+
+        latest = prices[-1]
+        previous = prices[-2]
+
+        percent_change = ((latest - previous) / previous) * 100
+
+        return round(percent_change, 2)
+
+    except:
+        return 0
+
 #student budget impact calculator
 @app.route('/budget', methods=['GET', 'POST'])
 def budget_calculator():
@@ -1087,7 +1119,7 @@ def budget_calculator():
         fuel_spending = float(request.form['fuel_spending'])
         transport_spending = float(request.form['transport_spending'])
         food_delivery_spending = float(request.form['food_delivery_spending'])
-        oil_change_percent = float(request.form['oil_change_percent'])
+        oil_change_percent = get_live_oil_change_percent()
 
         fuel_extra = round(fuel_spending * oil_change_percent / 100, 2)
         transport_extra = round(transport_spending * (oil_change_percent * 0.6) / 100, 2)
