@@ -77,10 +77,13 @@ def login():
 
         if user and check_password_hash(user['password'], password):
 
+            if user['is_active'] == 0:
+                return "Account is deactivated. Please contact admin."
+
             session['user'] = email
 
             return redirect('/')
-
+    
         else:
             return "Invalid Login"
 
@@ -93,6 +96,7 @@ def logout():
 
     session.pop('user', None)
 
+    
     return redirect('/login')
 
 
@@ -378,6 +382,11 @@ def init_db():
         password TEXT
     )
     ''')
+        
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1")
+    except:
+        pass
 
     # NEWS
     cursor.execute('''
@@ -1221,6 +1230,67 @@ def delete_alert(id):
     conn.close()
 
     return redirect('/alerts')
+
+# ADMIN USER MANAGEMENT
+ADMIN_EMAILS = [
+    "janeeswar21@gmail.com",
+    "test@gmail.com",
+    "linghernther.12@gmail.com",
+    "sham13ska@gmail.com"
+]
+
+@app.route('/admin/users')
+def admin_users():
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    if session['user'] not in ADMIN_EMAILS:
+        return "Access denied. Admin only."
+ 
+    conn = get_db()
+
+    users = conn.execute(
+        'SELECT id, email, is_active FROM users ORDER BY id DESC'
+    ).fetchall()
+
+    conn.close()
+
+    return render_template('admin_users.html', users=users)
+
+
+@app.route('/admin/toggle_user/<int:id>')
+def toggle_user(id):
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    if session['user'] not in ADMIN_EMAILS:
+        return "Access denied. Admin only."
+    conn = get_db()
+
+    user = conn.execute(
+        'SELECT * FROM users WHERE id=?',
+        (id,)
+    ).fetchone()
+
+    if user:
+
+        if user['is_active'] == 1:
+            new_status = 0
+        else:
+            new_status = 1
+
+        conn.execute(
+            'UPDATE users SET is_active=? WHERE id=?',
+            (new_status, id)
+        )
+
+        conn.commit()
+
+    conn.close()
+
+    return redirect('/admin/users')
 
 # RUN APP
 init_db()
